@@ -78,22 +78,14 @@ public class LumiaTest {
   @Test
   public void testSendBrightness() {
     client.sendBrightness(1, Duration.ofDays(1), true)
-        .subscribe().with(jsonObject -> {
-      
-      System.out.println(jsonObject.encode());
-    });
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
   }
 
   @Test
   public void testSendChatbot() {
     client.sendChatBot(Platform.TWITCH, "ME!")
         .subscribe().with(jsonObject -> {
-      
-      {
-        
-        System.out.println(jsonObject.encode());
-      }
-      ;
+      System.out.println(jsonObject.encode());
     });
   }
 
@@ -101,17 +93,14 @@ public class LumiaTest {
   public void testSendColor() {
     client.sendColor(new Rgb(1, 2, 3), 4, Duration.ofNanos(1), Duration.ofMillis(1), true, false,
         List.of(new LumiaLight(LightBrand.COLOLIGHT, LightBrand.COLOLIGHT.getId())))
-        .subscribe().with(jsonObject -> {
-      
-      System.out.println(jsonObject.encode());
-    });
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
   }
 
   @Test
   public void testSendCommand() {
     client.sendCommand(LumiaCommandType.CHAT_COMMAND, false, true)
         .subscribe().with(jsonObject -> {
-      
+
       System.out.println(jsonObject.encode());
     });
   }
@@ -119,9 +108,6 @@ public class LumiaTest {
   @Test
   public void testSendTts() {
     client.sendTts("we", 10, "dd")
-        .subscribe().with(jsonObject -> {
-      
-      System.out.println(jsonObject.encode());
-    });
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
   }
 }

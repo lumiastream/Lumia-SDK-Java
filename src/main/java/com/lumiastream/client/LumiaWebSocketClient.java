@@ -42,7 +42,8 @@ public class LumiaWebSocketClient {
         .append("&name=").append(lumiaOptions.getName());
     logger.info(() -> String.format("Connecting:- URI: %s", uri));
 
-    return Vertx.vertx().createHttpClient().webSocket(lumiaOptions.getPort(), lumiaOptions.getHost(), uri.toString())
+    return Vertx.vertx().createHttpClient()
+        .webSocket(lumiaOptions.getPort(), lumiaOptions.getHost(), uri.toString())
         .onItem().transform(webSocket1 -> {
           webSocket = webSocket1;
           logger.info(() -> String.format("Connected:- Closed Status: %s", webSocket1.isClosed()));
@@ -70,9 +71,11 @@ public class LumiaWebSocketClient {
   }
 
   private Multi<JsonObject> sendWebsocketMessage(final String json) {
-    logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s", json, webSocket.isClosed()));
+    logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s"
+        , json, webSocket.isClosed()));
     JsonObject result = new JsonObject();
-    webSocket.handler(buffer -> result.mergeIn(new JsonObject(buffer.toString()))).writeAndForget(Buffer.buffer(json));
+    webSocket.handler(buffer -> result.mergeIn(new JsonObject(buffer.toString())))
+        .writeAndForget(Buffer.buffer(json));
 
     return Multi.createFrom().item(result);
   }

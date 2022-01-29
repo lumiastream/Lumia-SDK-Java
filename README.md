@@ -1,33 +1,24 @@
-# Lumiastream Websocket SDK
+# The official Lumia Stream SDK for Java
 
 ## Building
 
-To launch your tests:
+To launch the tests:
 ```
 ./gradlew clean test
 ```
 
-To package your application:
-```
-./gradlew clean assemble
-```
-
-To run your application:
-```
-./gradlew clean run
-```
-
-# The official Lumia Stream SDK for Javascript/Typescript
 
 This repository is for the Lumia Stream SDK releases and documentation.
 
-Developers can use the Lumia Stream SDK to extend and control the Lumia Stream desktop app, enabling them to control smart lights, MIDI, DMX, OSC, OBS, TTS and so much more to create a custom and unique lighting experience.
+Developers can use the Lumia Stream SDK to extend and control the Lumia Stream desktop app, 
+enabling them to control smart lights, MIDI, DMX, OSC, OBS, TTS and so much more to create a
+custom and unique lighting experience.
 
 ## Table of Contents
 
 <!-- toc -->
 
-- [The official Lumia Stream SDK for Javascript/Typescript](#the-official-lumia-stream-sdk-for-javascripttypescript)
+- [The official Lumia Stream SDK for Java](#the-official-lumia-stream-sdk-for-java)
     - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Run the SDK](#run-the-sdk)
@@ -56,77 +47,48 @@ Developers can use the Lumia Stream SDK to extend and control the Lumia Stream d
 
 # Installation
 
-`lumiastream's sdk` can easily be installed as a npm module:
+`lumiastream's Java sdk` can easily be installed from maven central:
 
-```bash
-npm i @lumiastream/sdk
+```groovy
+'com.lumiastream:lumiastream-websocket-sdk:0.1.0-SNAPSHOT'
 ```
 
 # Run the SDK
 
 We've also included an example for using the SDK.
 
-To run the example head to [examples](https://github.com/lumiastream/Lumia-SDK-JS/examples) and you will see the `basic-example.js` file there.
+To run the example head to [examples](https://github.com/lumiastream/Lumia-SDK-Java/example) 
+and you will see the `LumiaExample.java` file there which can be run using [JBang](https://www.jbang.dev/).
 
 Make sure you replace your token with the token that you will find in Lumia Stream's settings.
 Here is how to [find your API token](https://dev.lumiastream.com/docs/get-a-token)
 
-After you have your token and replaced it inside of the `basic-example.js`, you can now run:
+After you have your token and replaced it inside the `LumiaExample.java`, you can now run:
 
 ```bash
-npm install
-node basic-example.js
+jbang LumiaExample.java
 ```
 
-This will first initialize the sdk to create the connection. Then it will listen in on events that are coming through. You can also test out sending events by uncommenting the testSends function.
+This will pull in all the dependencies and run the example.
 
 # Sample
 
 The following snippet shows a valid sdk example
 
-```js
-"use strict";
-
-const { LumiaSdk, LumiaActivityCommandTypes, LumiaAlertValues, LumiaSdkEventTypes } = require('@lumiastream/sdk');
-
-const token = 'insert-token-here';
-const appName = 'lumia-test-sdk-js';
-
-(async () => {
-    sdk = new LumiaSdk();
-
-    try {
-        await sdk.init({ appName, token });
-
-        sdk.on('event', (data) => {
-            console.log('Event data: ', data);
-            switch (data.type) {
-                case LumiaSdkEventTypes.CHAT_COMMANDS: {
-                    console.log('Chat Command is being triggered', data);
-                    break;
-                }
-                case LumiaSdkEventTypes.CHAT_TWITCH: {
-                    console.log('New chat message from twitch', data);
-                    break;
-                }
-            }
-        });
-
-    // Sending a command
-    await sdk.sendCommand({
-      command: 'red',
-    });
-
-    // Sending a basic color
-    await sdk.sendColor({
-      color: { r: 255, g: 0, b: 255 },
-      brightness: 60,
-      duration: 1000,
-    });
-    } catch (err) {
-        console.log('Init err: ', err);
-    }
-})();
+```java
+  final LumiaWebSocketClient client = Lumia.client();
+      client.connect().await().indefinitely();
+      client.getInfo().subscribe().with(System.out::println);
+  
+      final LumiaPackParam lumiaPackParam = new LumiaPackParam();
+      lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
+      final LumiaSendPack lumiaSendPack = new LumiaSendPack(LumiaCommandType.ALERT,
+          lumiaPackParam);
+  
+      client.send(lumiaSendPack).subscribe().with(System.out::println);
+  
+      client.getWebSocket().handler(buffer -> System.out.println(buffer));
+  
 ```
 
 # Run a mock server
@@ -145,7 +107,7 @@ This will send a few test events from the client as well as listen in on command
 
 # Events
 
-Events are broadcasted by Lumia Stream to each connected client when an action occurs inside Lumia Stream.
+Events are broadcast by Lumia Stream to each connected client when an action occurs inside Lumia Stream.
 
 These events range from the app state being changed, raw chat messages, chat commands, alerts and much more.
 
@@ -275,8 +237,10 @@ These settings will include all of the lights that are connected to Lumia, the c
 
 **Example:**
 
-```javascript
-const info = await sdk.getInfo();
+```java
+  final LumiaWebSocketClient client = Lumia.client();
+  client.connect().await().indefinitely();
+  client.getInfo().subscribe().with(System.out::println);
 ```
 
 ---
@@ -287,10 +251,16 @@ The simplest way to use Lumia is first setting up a command inside of Lumia Stre
 
 **Example:**
 
-```javascript
-await sdk.sendCommand({
- command: 'red',
-});
+```java
+  final CountDownLatch countDownLatch = new CountDownLatch(1);
+    final LumiaPackParam lumiaPackParam = new LumiaPackParam();
+    lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
+    client.send(new LumiaSendPack(LumiaCommandType.ALERT, lumiaPackParam))
+        .subscribe().with(jsonObject -> {
+      countDownLatch.countDown();
+      System.out.println(jsonObject.encode());
+    });
+    countDownLatch.await();
 ```
 
 ---
@@ -302,11 +272,10 @@ Sending a color gives you the ability to set your lights to whatever color you c
 **Example:**
 
 ```javascript
-await sdk.sendColor({
- color: { r: 255, g: 0, b: 255 },
- brightness: 60,
- duration: 1000,
-});
+
+    client.sendColor(new Rgb(1, 2, 3), 4, Duration.ofNanos(1), Duration.ofMillis(1), true, false,
+        List.of(new LumiaLight(LightBrand.COLOLIGHT, LightBrand.COLOLIGHT.getId())))
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
 ```
 
 ---
@@ -318,12 +287,10 @@ Using the same sendColor method you can also choose which lights receive the col
 **Example:**
 
 ```javascript
-await sdk.sendColor({
- color: { r: 255, g: 0, b: 255 },
- brightness: 60,
- duration: 1000,
- lights: [{ type: 'hue', id: '10' }]
-});
+
+    client.sendColor(new Rgb(1, 2, 3), 4, Duration.ofNanos(1), Duration.ofMillis(1), true, false,
+        List.of(new LumiaLight(LightBrand.COLOLIGHT, LightBrand.COLOLIGHT.getId())))
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
 ```
 
 ---
@@ -334,10 +301,9 @@ Sending brightness alone will keep all of your lights at their current state whi
 
 **Example:**
 
-```javascript
-await sdk.sendBrightness({
- brightness: 100,
-});
+```java
+    client.sendBrightness(1, Duration.ofDays(1), true)
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
 ```
 
 ---
@@ -349,9 +315,8 @@ Sending TTS messages will give you the ability to use Lumia's TTS by just caling
 **Example:**
 
 ```javascript
-await sdk.sendTts({
- text: 'This SDK is the best',
-});
+client.sendTts("we", 10, "dd")
+        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
 ```
 
 ---
@@ -362,11 +327,11 @@ Sending a Chat bot messages will allow you to send messages to chat through Lumi
 
 **Example:**
 
-```javascript
-await sdk.sendChatbot({
- platform: 'twitch',
- text: 'This SDK is the best',
-});
+```java
+client.sendChatBot(Platform.TWITCH, "ME!")
+        .subscribe().with(jsonObject -> {
+      System.out.println(jsonObject.encode());
+    });
 ```
 
 ---
@@ -450,8 +415,11 @@ Send a mock alert
 
 **Example:**
 
-```javascript
-await sdk.sendAlert({ alert: LumiaSDKAlertValues.TWITCH_FOLLOWER });
+```java
+client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
+        .subscribe().with(jsonObject -> {
+      System.out.println(jsonObject.encode());
+    });
 ```
 
 ---
@@ -461,7 +429,7 @@ await sdk.sendAlert({ alert: LumiaSDKAlertValues.TWITCH_FOLLOWER });
 - [Download the latest Lumia Stream SDK release](https://github.com/lumiastream/Lumia-SDK-JS/releases)
 - [Read the full API reference](https://dev.lumiastream.com)
 - [Run a mock server](https://github.com/lumiastream/Lumia-SDK-JS/examples)
-- [Browse some examples](https://github.com/lumiastream/Lumia-SDK-JS/examples)
+- [Browse some examples](https://github.com/lumiastream/Lumia-SDK-Java/example)
 
 ## Let's link
 

@@ -1,3 +1,5 @@
+import java.util.Base64.getDecoder
+
 plugins {
   `java-library`
   `maven-publish`
@@ -92,9 +94,16 @@ publishing {
   }
 }
 
-signing {
-  sign(publishing.publications["mavenJava"])
-}
+//fun base64Decode(prop: String): String? {
+//  return project.findProperty(prop)?.let {
+//    String(getDecoder().decode(it.toString())).trim()
+//  }
+//}
+//
+//signing {
+//  useInMemoryPgpKeys(base64Decode("signingKey"), base64Decode("signingPassword"))
+//  sign(publishing.publications["mavenJava"])
+//}
 
 tasks.javadoc {
   if (JavaVersion.current().isJava9Compatible) {
