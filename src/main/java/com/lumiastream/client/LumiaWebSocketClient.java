@@ -85,7 +85,7 @@ public class LumiaWebSocketClient {
 
   public Multi<JsonObject> send(final LumiaSendPack pack) {
     final String packString = Json.encode(pack);
-    final JsonObject message = new JsonObject().put("lsorigin", "lumia-java-sdk");
+    final JsonObject message = new JsonObject().put("lsorigin", "lumia-sdk");
     final JsonObject merged = message.mergeIn(new JsonObject(packString));
     logger.info(() -> String.format("Data: %s", merged.encode()));
     return sendWebsocketMessage(merged.encode());
@@ -118,9 +118,9 @@ public class LumiaWebSocketClient {
     return send(pack);
   }
 
-  public Multi<JsonObject> sendCommand(final LumiaExternalActivityCommandType command, final Boolean def,
+  public Multi<JsonObject> sendCommand(final String command, final Boolean def,
       final Boolean skipQueue) {
-    final LumiaPackParam packParam = new LumiaPackParam().setValue(command.getValue()).setHold(def)
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(command).setHold(def)
         .setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHAT_COMMAND, packParam);
     logger.info(() -> String.format("Commanding :- Data: %s", Json.encode(pack)));

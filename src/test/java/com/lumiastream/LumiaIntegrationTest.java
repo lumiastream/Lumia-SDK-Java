@@ -104,7 +104,7 @@ public class LumiaIntegrationTest {
 
   @Test
   public void testSendCommand() {
-    client.sendCommand(LumiaExternalActivityCommandType.CHAT_COMMAND, false, true)
+    client.sendCommand(LumiaExternalActivityCommandType.CHAT_COMMAND.getValue(), false, true)
         .subscribe().with(jsonObject -> {
 
       System.out.println(jsonObject.encode());
