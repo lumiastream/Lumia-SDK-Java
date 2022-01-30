@@ -1,6 +1,5 @@
 package com.lumiastream.client;
 
-
 import com.lumiastream.common.LumiaAlertValue;
 import com.lumiastream.common.LumiaCommandType;
 import com.lumiastream.common.LumiaLight;
@@ -73,8 +72,8 @@ public class LumiaWebSocketClient {
   private Multi<JsonObject> sendWebsocketMessage(final String json) {
     JsonObject result = new JsonObject();
     if (webSocket != null) {
-      logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s"
-          , json, webSocket.isClosed()));
+      logger
+          .info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s", json, webSocket.isClosed()));
       webSocket.handler(buffer -> result.mergeIn(new JsonObject(buffer.toString())))
           .writeAndForget(Buffer.buffer(json));
     } else {
@@ -85,7 +84,7 @@ public class LumiaWebSocketClient {
 
   public Multi<JsonObject> send(final LumiaSendPack pack) {
     final String packString = Json.encode(pack);
-    final JsonObject message = new JsonObject().put("lsorigin", "lumia-java-sdk");
+    final JsonObject message = new JsonObject().put("lsorigin", "lumia-sdk");
     final JsonObject merged = message.mergeIn(new JsonObject(packString));
     logger.info(() -> String.format("Data: %s", merged.encode()));
     return sendWebsocketMessage(merged.encode());
