@@ -10,7 +10,7 @@ To launch the tests:
 
 This repository is for the Lumia Stream SDK releases and documentation.
 
-Developers can use the Lumia Stream SDK to extend and control the Lumia Stream desktop app, 
+Developers can use the Lumia Stream SDK to extend and control the Lumia Stream desktop app,
 enabling them to control smart lights, MIDI, DMX, OSC, OBS, TTS and so much more to create a
 custom and unique lighting experience.
 
@@ -19,7 +19,8 @@ custom and unique lighting experience.
 <!-- toc -->
 
 - [The official Lumia Stream SDK for Java](#the-official-lumia-stream-sdk-for-java)
-    - [Table of Contents](#table-of-contents)
+  - [Building](#building)
+  - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Run the SDK](#run-the-sdk)
 - [Sample](#sample)
@@ -40,8 +41,9 @@ custom and unique lighting experience.
     - [Send Chat Command](#send-chat-command)
     - [Send Chat](#send-chat)
     - [Send Alert](#send-alert)
-    - [Resources](#resources)
-    - [Let's link](#lets-link)
+  - [Resources](#resources)
+  - [Let's link](#lets-link)
+- [Lumia-SDK-Java](#lumia-sdk-java)
 
 <!-- tocstop -->
 
@@ -57,7 +59,7 @@ custom and unique lighting experience.
 
 We've also included an example for using the SDK.
 
-To run the example head to [examples](https://github.com/lumiastream/Lumia-SDK-Java/example) 
+To run the example head to [examples](https://github.com/lumiastream/Lumia-SDK-Java/tree/main/src/main/java/example)
 and you will see the `LumiaExample.java` file there which can be run using [JBang](https://www.jbang.dev/).
 
 Make sure you replace your token with the token that you will find in Lumia Stream's settings.
@@ -79,23 +81,23 @@ The following snippet shows a valid sdk example
   final LumiaWebSocketClient client = Lumia.client();
       client.connect().await().indefinitely();
       client.getInfo().subscribe().with(System.out::println);
-  
+
       final LumiaPackParam lumiaPackParam = new LumiaPackParam();
       lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
       final LumiaSendPack lumiaSendPack = new LumiaSendPack(LumiaCommandType.ALERT,
           lumiaPackParam);
-  
+
       client.send(lumiaSendPack).subscribe().with(System.out::println);
-  
+
       client.getWebSocket().handler(buffer -> System.out.println(buffer));
-  
+
 ```
 
 # Run a mock server
 
 Included in the SDK is a mock server that you can run to test things out without needing Lumia Stream
 
-To run the server head to [examples](https://github.com/lumiastream/Lumia-SDK-JS/examples) and you will see the `test-server.js` file there.
+To run the server head to [examples](https://github.com/lumiastream/Lumia-SDK-JS/tree/main/examples) and you will see the `test-server.js` file there.
 Now run:
 
 ```bash
@@ -426,10 +428,10 @@ client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
 
 ## Resources
 
-- [Download the latest Lumia Stream SDK release](https://github.com/lumiastream/Lumia-SDK-JS/releases)
+- [Download the latest Lumia Stream SDK release](https://github.com/lumiastream/Lumia-SDK-Jave/releases)
 - [Read the full API reference](https://dev.lumiastream.com)
-- [Run a mock server](https://github.com/lumiastream/Lumia-SDK-JS/examples)
-- [Browse some examples](https://github.com/lumiastream/Lumia-SDK-Java/example)
+- [Run a mock server](https://github.com/lumiastream/Lumia-SDK-JS/tree/main/examples)
+- [Browse some examples](https://github.com/lumiastream/Lumia-SDK-Java/tree/main/src/main/java/example)
 
 ## Let's link
 

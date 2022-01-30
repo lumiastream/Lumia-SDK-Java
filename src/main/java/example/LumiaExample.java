@@ -1,7 +1,6 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //DEPS com.lumiastream:lumiastream-websocket-sdk:0.1.0-SNAPSHOT
 
-
 import com.lumiastream.client.Lumia;
 import com.lumiastream.client.LumiaWebSocketClient;
 import com.lumiastream.common.LumiaAlertValue;
