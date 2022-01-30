@@ -87,7 +87,7 @@ public class LumiaWebSocketClient {
     final String packString = Json.encode(pack);
     final JsonObject message = new JsonObject().put("lsorigin", "lumia-java-sdk");
     final JsonObject merged = message.mergeIn(new JsonObject(packString));
-    logger.info(() -> String.format("Getting Info:- Data: %s", merged.encode()));
+    logger.info(() -> String.format("Data: %s", merged.encode()));
     return sendWebsocketMessage(merged.encode());
   }
 
