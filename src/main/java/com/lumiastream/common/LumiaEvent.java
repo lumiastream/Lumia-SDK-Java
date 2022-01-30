@@ -1,5 +1,8 @@
 package com.lumiastream.common;
 
+import com.lumiastream.common.enums.EventOrigin;
+import com.lumiastream.common.enums.LumiaEventType;
+
 public class LumiaEvent {
   private EventOrigin eventOrigin;
   private LumiaEventType eventType;

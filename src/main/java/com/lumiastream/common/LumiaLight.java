@@ -1,5 +1,7 @@
 package com.lumiastream.common;
 
+import com.lumiastream.common.enums.LightBrand;
+
 public class LumiaLight {
 
   private LightBrand lightBrand;

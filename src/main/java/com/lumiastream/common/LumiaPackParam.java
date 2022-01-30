@@ -2,8 +2,7 @@ package com.lumiastream.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
+import com.lumiastream.common.enums.Platform;
 import java.util.List;
 
 @JsonInclude(Include.NON_NULL)

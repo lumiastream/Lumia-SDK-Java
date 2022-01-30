@@ -4,10 +4,7 @@
 import com.lumiastream.client.Lumia;
 import com.lumiastream.client.LumiaOptions;
 import com.lumiastream.client.LumiaWebSocketClient;
-import com.lumiastream.common.LumiaAlertValue;
-import com.lumiastream.common.LumiaCommandType;
-import com.lumiastream.common.LumiaPackParam;
-import com.lumiastream.common.LumiaSendPack;
+import com.lumiastream.common.enums.LumiaAlertValue;
 
 public class LumiaExample {
 

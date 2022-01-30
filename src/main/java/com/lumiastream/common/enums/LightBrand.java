@@ -1,4 +1,4 @@
-package com.lumiastream.common;
+package com.lumiastream.common.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

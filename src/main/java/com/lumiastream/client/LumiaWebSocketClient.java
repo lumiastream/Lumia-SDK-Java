@@ -1,12 +1,12 @@
 package com.lumiastream.client;
 
 
-import com.lumiastream.common.LumiaAlertValue;
-import com.lumiastream.common.LumiaCommandType;
+import com.lumiastream.common.enums.LumiaAlertValue;
+import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.LumiaLight;
 import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
-import com.lumiastream.common.Platform;
+import com.lumiastream.common.enums.Platform;
 import com.lumiastream.common.Rgb;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -93,14 +93,14 @@ public class LumiaWebSocketClient {
 
   public Multi<JsonObject> sendAlert(final LumiaAlertValue alert) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(alert.getValue());
-    final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.ALERT, packParam);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.ALERT, packParam);
     logger.info(() -> String.format("Alerting :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
 
   public Multi<JsonObject> sendChatBot(final Platform platform, final String text) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setPlatform(platform);
-    final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.CHATBOT_MESSAGE, packParam);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHATBOT_MESSAGE, packParam);
     logger.info(() -> String.format("Chat Botting :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
@@ -113,16 +113,16 @@ public class LumiaWebSocketClient {
         .setBrightness(brightness).setDuration(duration.toMillis())
         .setTransition(transition.toMillis()).setHold(def).setSkipQueue(skipQueue)
         .setLights(lights);
-    final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.RGB_COLOR, packParam);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR, packParam);
     logger.info(() -> String.format("Coloring :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
 
-  public Multi<JsonObject> sendCommand(final LumiaCommandType command, final Boolean def,
+  public Multi<JsonObject> sendCommand(final LumiaExternalActivityCommandType command, final Boolean def,
       final Boolean skipQueue) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(command.getValue()).setHold(def)
         .setSkipQueue(skipQueue);
-    final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.CHAT_COMMAND, packParam);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHAT_COMMAND, packParam);
     logger.info(() -> String.format("Commanding :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
@@ -131,7 +131,7 @@ public class LumiaWebSocketClient {
       final Boolean skipQueue) {
     final LumiaPackParam packParam = new LumiaPackParam().setBrightness(brightness)
         .setTransition(transition.toMillis()).setSkipQueue(skipQueue);
-    final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.RGB_COLOR, packParam);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR, packParam);
     logger.info(() -> String.format("Brightness :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
@@ -139,7 +139,7 @@ public class LumiaWebSocketClient {
   public Multi<JsonObject> sendTts(final String text, final Integer volume, final String voice) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setVolume(volume)
         .setVoice(voice);
-    final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.TTS, packParam);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.TTS, packParam);
     logger.info(() -> String.format("TTSing :- Data: %s", Json.encode(pack)));
     return send(pack);
   }

@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.lumiastream.client.Lumia;
 import com.lumiastream.client.LumiaOptions;
 import com.lumiastream.client.LumiaWebSocketClient;
-import com.lumiastream.common.LightBrand;
-import com.lumiastream.common.LumiaAlertValue;
-import com.lumiastream.common.LumiaCommandType;
+import com.lumiastream.common.enums.LightBrand;
+import com.lumiastream.common.enums.LumiaAlertValue;
+import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.LumiaLight;
 import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
-import com.lumiastream.common.Platform;
+import com.lumiastream.common.enums.Platform;
 import com.lumiastream.common.Rgb;
 import com.sun.tools.javac.util.List;
 import io.vertx.core.Vertx;
@@ -62,7 +62,7 @@ public class LumiaIntegrationTest {
     final CountDownLatch countDownLatch = new CountDownLatch(1);
     final LumiaPackParam lumiaPackParam = new LumiaPackParam()
         .setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
-    client.send(new LumiaSendPack(LumiaCommandType.ALERT, lumiaPackParam))
+    client.send(new LumiaSendPack(LumiaExternalActivityCommandType.ALERT, lumiaPackParam))
         .subscribe().with(jsonObject -> {
       countDownLatch.countDown();
       System.out.println(jsonObject.encode());
@@ -104,7 +104,7 @@ public class LumiaIntegrationTest {
 
   @Test
   public void testSendCommand() {
-    client.sendCommand(LumiaCommandType.CHAT_COMMAND, false, true)
+    client.sendCommand(LumiaExternalActivityCommandType.CHAT_COMMAND, false, true)
         .subscribe().with(jsonObject -> {
 
       System.out.println(jsonObject.encode());
