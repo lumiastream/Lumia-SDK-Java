@@ -12,16 +12,18 @@ import com.lumiastream.common.LumiaSendPack;
 public class LumiaExample {
 
   public static void main(String... args) {
-    final LumiaWebSocketClient client = Lumia.client(new LumiaOptions("127.0.0.1", 39231,"lumia-java-sdk","39231"));
+    final LumiaWebSocketClient client = Lumia
+        .client(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "insert-token"));
     client.connect().await().indefinitely();
     client.getInfo().subscribe().with(System.out::println);
 
-    final LumiaPackParam lumiaPackParam = new LumiaPackParam();
-    lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
-    final LumiaSendPack lumiaSendPack = new LumiaSendPack(LumiaCommandType.ALERT,
-        lumiaPackParam);
+    final LumiaAlertValue alert = LumiaAlertValue.TWITCH_FOLLOWER;
+    client.sendAlert(alert).subscribe().with(System.out::println);
 
-    client.send(lumiaSendPack).subscribe().with(System.out::println);
+    // final LumiaPackParam lumiaPackParam = new LumiaPackParam();
+    // lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
+    // final LumiaSendPack lumiaSendPack = new LumiaSendPack(LumiaCommandType.ALERT,
+    // lumiaPackParam);
 
     client.getWebSocket().handler(buffer -> System.out.println(buffer));
 

@@ -3,7 +3,7 @@ package com.lumiastream.common;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LumiaAlertValue {
-  TWITCH_FOLLOWER(16, "twitch_follower"),
+  TWITCH_FOLLOWER(16, "twitch-follower"),
   TWITCH_SUBSCRIBER(17, "twitch_subscriber"),
   TWITCH_BITS(18, "twitch_bits"),
   TWITCH_HOST(19, "twitch_host"),
@@ -32,7 +32,7 @@ public enum LumiaAlertValue {
   OBS_STREAMSTOPPING(42, "obs_streamstopping"),
   SLOBS_SWITCHSCENE(43, "slobs_switchscene"),
   TREATSTREAM_TREAT(44, "treatstream_treat"),
-  PULSE_HEARTRATE(45,"pulse_heartrate"),
+  PULSE_HEARTRATE(45, "pulse_heartrate"),
   PULSE_CALORIES(46, "pulse_calories");
 
   private final String value;
