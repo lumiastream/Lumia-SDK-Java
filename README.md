@@ -428,7 +428,7 @@ client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
 
 ## Resources
 
-- [Download the latest Lumia Stream SDK release](https://github.com/lumiastream/Lumia-SDK-Jave/releases)
+- [Download the latest Lumia Stream SDK release](https://github.com/lumiastream/Lumia-SDK-Java/releases)
 - [Read the full API reference](https://dev.lumiastream.com)
 - [Run a mock server](https://github.com/lumiastream/Lumia-SDK-JS/tree/main/examples)
 - [Browse some examples](https://github.com/lumiastream/Lumia-SDK-Java/tree/main/src/main/java/example)

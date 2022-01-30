@@ -25,97 +25,98 @@ public class LumiaPackParam {
     return value;
   }
 
-  public void setValue(String value) {
+  public LumiaPackParam setValue(final String value) {
     this.value = value;
+    return this;
   }
 
   public List<LumiaLight> getLights() {
     return lights;
   }
 
-  public void setLights(List<LumiaLight> lights) {
+  public LumiaPackParam setLights(final List<LumiaLight> lights) {
     this.lights = lights;
+    return this;
   }
 
   public Boolean getHold() {
     return hold;
   }
 
-  public void setHold(Boolean hold) {
+  public LumiaPackParam setHold(final Boolean hold) {
     this.hold = hold;
+    return this;
   }
 
   public Boolean getSkipQueue() {
     return skipQueue;
   }
 
-  public void setSkipQueue(Boolean skipQueue) {
+  public LumiaPackParam setSkipQueue(final Boolean skipQueue) {
     this.skipQueue = skipQueue;
+    return this;
   }
 
   public Platform getPlatform() {
     return platform;
   }
 
-  public void setPlatform(Platform platform) {
+  public LumiaPackParam setPlatform(final Platform platform) {
     this.platform = platform;
+    return this;
   }
 
   public String getVoice() {
     return voice;
   }
 
-  public void setVoice(String voice) {
+  public LumiaPackParam setVoice(final String voice) {
     this.voice = voice;
+    return this;
   }
 
   public Integer getVolume() {
     return volume;
   }
 
-  public void setVolume(Integer volume) {
+  public LumiaPackParam setVolume(final Integer volume) {
     this.volume = volume;
+    return this;
   }
 
   public Integer getBrightness() {
     return brightness;
   }
 
-  public void setBrightness(Integer brightness) {
+  public LumiaPackParam setBrightness(final Integer brightness) {
     this.brightness = brightness;
+    return this;
   }
 
   public Long getDuration() {
     return duration;
   }
 
-  public void setDuration(final Long duration) {
+  public LumiaPackParam setDuration(final Long duration) {
     this.duration = duration;
+    return this;
   }
 
   public Long getTransition() {
     return transition;
   }
 
-  public void setTransition(Long transition) {
+  public LumiaPackParam setTransition(final Long transition) {
     this.transition = transition;
+    return this;
   }
 
   public ExtraSetting getExtraSetting() {
     return extraSetting;
   }
 
-  public void setExtraSetting(ExtraSetting extraSetting) {
+  public LumiaPackParam setExtraSetting(final ExtraSetting extraSetting) {
     this.extraSetting = extraSetting;
-  }
-
-
-  public static void main(String[] args) {
-    final JsonObject put = new JsonObject().put("value", "some value");
-    final LumiaPackParam lumiaPackParam = put.mapTo(LumiaPackParam.class);
-    System.out.println(Json.encode(lumiaPackParam));
-    System.out.println(lumiaPackParam.brightness);
-    System.out.println(lumiaPackParam.value);
-    System.out.println(Json.encode(LumiaCommandType.CHAT_COMMAND));
+    return this;
   }
 }

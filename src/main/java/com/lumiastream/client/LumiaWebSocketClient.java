@@ -71,12 +71,15 @@ public class LumiaWebSocketClient {
   }
 
   private Multi<JsonObject> sendWebsocketMessage(final String json) {
-    logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s"
-        , json, webSocket.isClosed()));
     JsonObject result = new JsonObject();
-    webSocket.handler(buffer -> result.mergeIn(new JsonObject(buffer.toString())))
-        .writeAndForget(Buffer.buffer(json));
-
+    if (webSocket != null) {
+      logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s"
+          , json, webSocket.isClosed()));
+      webSocket.handler(buffer -> result.mergeIn(new JsonObject(buffer.toString())))
+          .writeAndForget(Buffer.buffer(json));
+    } else {
+      result.put("message", "Websocket not connected");
+    }
     return Multi.createFrom().item(result);
   }
 
@@ -89,17 +92,14 @@ public class LumiaWebSocketClient {
   }
 
   public Multi<JsonObject> sendAlert(final LumiaAlertValue alert) {
-    final LumiaPackParam packParam = new LumiaPackParam();
-    packParam.setValue(alert.getValue());
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(alert.getValue());
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.ALERT, packParam);
     logger.info(() -> String.format("Alerting :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
 
   public Multi<JsonObject> sendChatBot(final Platform platform, final String text) {
-    final LumiaPackParam packParam = new LumiaPackParam();
-    packParam.setValue(text);
-    packParam.setPlatform(platform);
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setPlatform(platform);
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.CHATBOT_MESSAGE, packParam);
     logger.info(() -> String.format("Chat Botting :- Data: %s", Json.encode(pack)));
     return send(pack);
@@ -109,14 +109,10 @@ public class LumiaWebSocketClient {
       final Duration duration, final Duration transition, final Boolean def,
       final Boolean skipQueue, final List<LumiaLight> lights) {
 
-    final LumiaPackParam packParam = new LumiaPackParam();
-    packParam.setValue(Json.encode(rgb));
-    packParam.setBrightness(brightness);
-    packParam.setDuration(duration.toMillis());
-    packParam.setTransition(transition.toMillis());
-    packParam.setHold(def);
-    packParam.setSkipQueue(skipQueue);
-    packParam.setLights(lights);
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(Json.encode(rgb))
+        .setBrightness(brightness).setDuration(duration.toMillis())
+        .setTransition(transition.toMillis()).setHold(def).setSkipQueue(skipQueue)
+        .setLights(lights);
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.RGB_COLOR, packParam);
     logger.info(() -> String.format("Coloring :- Data: %s", Json.encode(pack)));
     return send(pack);
@@ -124,10 +120,8 @@ public class LumiaWebSocketClient {
 
   public Multi<JsonObject> sendCommand(final LumiaCommandType command, final Boolean def,
       final Boolean skipQueue) {
-    final LumiaPackParam packParam = new LumiaPackParam();
-    packParam.setValue(command.getValue());
-    packParam.setHold(def);
-    packParam.setSkipQueue(skipQueue);
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(command.getValue()).setHold(def)
+        .setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.CHAT_COMMAND, packParam);
     logger.info(() -> String.format("Commanding :- Data: %s", Json.encode(pack)));
     return send(pack);
@@ -135,20 +129,16 @@ public class LumiaWebSocketClient {
 
   public Multi<JsonObject> sendBrightness(final Integer brightness, final Duration transition,
       final Boolean skipQueue) {
-    final LumiaPackParam packParam = new LumiaPackParam();
-    packParam.setBrightness(brightness);
-    packParam.setTransition(transition.toMillis());
-    packParam.setSkipQueue(skipQueue);
+    final LumiaPackParam packParam = new LumiaPackParam().setBrightness(brightness)
+        .setTransition(transition.toMillis()).setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.RGB_COLOR, packParam);
     logger.info(() -> String.format("Brightness :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
 
   public Multi<JsonObject> sendTts(final String text, final Integer volume, final String voice) {
-    final LumiaPackParam packParam = new LumiaPackParam();
-    packParam.setValue(text);
-    packParam.setVolume(volume);
-    packParam.setVoice(voice);
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setVolume(volume)
+        .setVoice(voice);
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.TTS, packParam);
     logger.info(() -> String.format("TTSing :- Data: %s", Json.encode(pack)));
     return send(pack);

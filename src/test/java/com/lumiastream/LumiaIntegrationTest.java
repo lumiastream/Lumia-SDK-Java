@@ -1,5 +1,6 @@
 package com.lumiastream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.lumiastream.client.Lumia;
@@ -44,7 +45,6 @@ public class LumiaIntegrationTest {
       System.out.println(jsonObject.encode());
     });
     countDownLatch.await();
-    client.getWebSocket().close();
   }
 
   @Test
@@ -60,8 +60,8 @@ public class LumiaIntegrationTest {
   @Test
   public void testSend() throws InterruptedException {
     final CountDownLatch countDownLatch = new CountDownLatch(1);
-    final LumiaPackParam lumiaPackParam = new LumiaPackParam();
-    lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
+    final LumiaPackParam lumiaPackParam = new LumiaPackParam()
+        .setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
     client.send(new LumiaSendPack(LumiaCommandType.ALERT, lumiaPackParam))
         .subscribe().with(jsonObject -> {
       countDownLatch.countDown();
@@ -115,5 +115,15 @@ public class LumiaIntegrationTest {
   public void testSendTts() {
     client.sendTts("we", 10, "dd")
         .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+  }
+
+  @Test
+  public void testWebsocketNotConnected() {
+    Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39233))
+        .webSocketHandler(event -> event.handler(event::write)).listen();
+
+    client = Lumia.client(new LumiaOptions("127.0.0.1", 39230, "lumia-java-sdk", "39230"));
+    assertEquals(client.getWebSocket(), null);
+    client.getInfo().subscribe().with(jsonObject -> assertEquals(jsonObject.getString("message"),"Websocket not connected"));
   }
 }
