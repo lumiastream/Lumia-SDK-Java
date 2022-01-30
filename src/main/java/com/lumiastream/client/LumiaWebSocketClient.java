@@ -117,9 +117,9 @@ public class LumiaWebSocketClient {
     return send(pack);
   }
 
-  public Multi<JsonObject> sendCommand(final LumiaCommandType command, final Boolean def,
+  public Multi<JsonObject> sendCommand(final String command, final Boolean def,
       final Boolean skipQueue) {
-    final LumiaPackParam packParam = new LumiaPackParam().setValue(command.getValue()).setHold(def)
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(command).setHold(def)
         .setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaCommandType.CHAT_COMMAND, packParam);
     logger.info(() -> String.format("Commanding :- Data: %s", Json.encode(pack)));

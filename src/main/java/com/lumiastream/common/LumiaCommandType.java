@@ -9,7 +9,7 @@ public enum LumiaCommandType {
   ARTNET(4, "artnet"),
   RGB_COLOR(5, "rgb_color"),
   HEX_COLOR(6, "hex_color"),
-  CHAT_COMMAND(7, "chat_command"),
+  CHAT_COMMAND(7, "chat-command"),
   TWITCH_POINTS(8, "twitch_points"),
   TWITCH_EXTENSION(9, "twitch_extension"),
   TROVO_SPELLS(10, "trovo_spells"),
