@@ -2,10 +2,18 @@ package com.lumiastream.client;
 
 public class LumiaOptions {
 
-  private String host = "127.0.0.1";
-  private Integer port = 39231;
-  private String name = "lumia-java-sdk";
-  private String token = "39231";
+  private String host;
+  private Integer port;
+  private String name;
+  private String token;
+
+  public LumiaOptions(final String host, final Integer port, final String name,
+      final String token) {
+    this.host = host;
+    this.port = port;
+    this.name = name;
+    this.token = token;
+  }
 
   public String getHost() {
     return host;
@@ -19,7 +27,7 @@ public class LumiaOptions {
     return name;
   }
 
-  public void setHost(String host) {
+  public void setHost(final String host) {
     this.host = host;
   }
 
@@ -27,15 +35,15 @@ public class LumiaOptions {
     return port;
   }
 
-  public void setPort(Integer port) {
+  public void setPort(final Integer port) {
     this.port = port;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
-  public void setToken(String token) {
+  public void setToken(final String token) {
     this.token = token;
   }
 

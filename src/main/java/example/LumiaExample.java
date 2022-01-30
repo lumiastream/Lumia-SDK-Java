@@ -3,6 +3,7 @@
 
 
 import com.lumiastream.client.Lumia;
+import com.lumiastream.client.LumiaOptions;
 import com.lumiastream.client.LumiaWebSocketClient;
 import com.lumiastream.common.LumiaAlertValue;
 import com.lumiastream.common.LumiaCommandType;
@@ -12,7 +13,7 @@ import com.lumiastream.common.LumiaSendPack;
 public class LumiaExample {
 
   public static void main(String... args) {
-    final LumiaWebSocketClient client = Lumia.client();
+    final LumiaWebSocketClient client = Lumia.client(new LumiaOptions("127.0.0.1", 39231,"lumia-java-sdk","39231"));
     client.connect().await().indefinitely();
     client.getInfo().subscribe().with(System.out::println);
 

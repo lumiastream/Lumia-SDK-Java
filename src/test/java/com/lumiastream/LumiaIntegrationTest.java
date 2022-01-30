@@ -3,6 +3,7 @@ package com.lumiastream;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.lumiastream.client.Lumia;
+import com.lumiastream.client.LumiaOptions;
 import com.lumiastream.client.LumiaWebSocketClient;
 import com.lumiastream.common.LightBrand;
 import com.lumiastream.common.LumiaAlertValue;
@@ -13,19 +14,24 @@ import com.lumiastream.common.LumiaSendPack;
 import com.lumiastream.common.Platform;
 import com.lumiastream.common.Rgb;
 import com.sun.tools.javac.util.List;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerOptions;
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class LumiaTest {
+public class LumiaIntegrationTest {
 
   private static LumiaWebSocketClient client;
 
   @BeforeAll
   public static void init() {
-    client = Lumia.client();
+    Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39231))
+        .webSocketHandler(event -> event.handler(event::write)).listen();
+
+    client = Lumia.client(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "39231"));
     final Boolean isWebsocketClosed = client.connect().await().indefinitely();
     assertFalse(isWebsocketClosed);
   }
