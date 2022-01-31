@@ -3,9 +3,8 @@ package com.lumiastream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.lumiastream.client.Lumia;
 import com.lumiastream.client.LumiaOptions;
-import com.lumiastream.client.LumiaWebSocketClient;
+import com.lumiastream.client.Lumia;
 import com.lumiastream.common.enums.LightBrand;
 import com.lumiastream.common.enums.LumiaAlertValue;
 import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
@@ -25,14 +24,14 @@ import org.junit.jupiter.api.Test;
 
 public class LumiaIntegrationTest {
 
-  private static LumiaWebSocketClient client;
+  private static Lumia client;
 
   @BeforeAll
   public static void init() {
     Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39231))
         .webSocketHandler(event -> event.handler(event::write)).listen();
 
-    client = Lumia.client(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "39231"));
+    client = Lumia.getInstance(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "39231"));
     final Boolean isWebsocketClosed = client.connect().await().indefinitely();
     assertFalse(isWebsocketClosed);
   }
@@ -122,7 +121,7 @@ public class LumiaIntegrationTest {
     Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39233))
         .webSocketHandler(event -> event.handler(event::write)).listen();
 
-    client = Lumia.client(new LumiaOptions("127.0.0.1", 39230, "lumia-java-sdk", "39230"));
+    client = Lumia.getInstance(new LumiaOptions("127.0.0.1", 39230, "lumia-java-sdk", "39230"));
     assertEquals(client.getWebSocket(), null);
     client.getInfo().subscribe().with(jsonObject -> assertEquals(jsonObject.getString("message"),"Websocket not connected"));
   }

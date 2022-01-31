@@ -1,9 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //DEPS com.lumiastream:lumiastream-websocket-sdk:0.1.0-SNAPSHOT
 
-import com.lumiastream.client.Lumia;
 import com.lumiastream.client.LumiaOptions;
-import com.lumiastream.client.LumiaWebSocketClient;
+import com.lumiastream.client.Lumia;
 import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
 import com.lumiastream.common.Rgb;
@@ -16,8 +15,8 @@ import java.util.List;
 public class LumiaExample {
 
   public static void main(String... args) {
-    final LumiaWebSocketClient client = Lumia
-        .client(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "insert-token"));
+    final Lumia client = Lumia
+        .getInstance(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "insert-token"));
     client.connect().await().indefinitely();
     client.getInfo().subscribe().with(System.out::println);
 
