@@ -1,7 +1,8 @@
 package com.lumiastream.client;
 
 
-import com.lumiastream.common.LumiaLight;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
 import com.lumiastream.common.Rgb;
@@ -12,17 +13,16 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.http.WebSocket;
-import java.time.Duration;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class Lumia {
 
   private WebSocket webSocket;
-  private final LumiaOptions lumiaOptions;
+  private final ConnectionOptions lumiaOptions;
   private static final Logger logger = Logger
       .getLogger(Lumia.class.getCanonicalName());
 
@@ -30,13 +30,22 @@ public class Lumia {
     return webSocket;
   }
 
-  private Lumia(final LumiaOptions lumiaOptions) {
+  private Lumia(final ConnectionOptions lumiaOptions) {
     this.lumiaOptions = lumiaOptions;
     logger.info(() -> String.format("Initializing:- Options: %s", lumiaOptions.toString()));
   }
 
-  public static Lumia getInstance(final LumiaOptions lumiaOptions) {
+  public static Lumia getInstance(final ConnectionOptions lumiaOptions) {
+    registerJavaDateTimeEncoders();
     return new Lumia(lumiaOptions);
+  }
+
+  private static void registerJavaDateTimeEncoders() {
+    final ObjectMapper mapper = DatabindCodec.mapper();
+    mapper.registerModule(new JavaTimeModule());
+
+    final ObjectMapper prettyMapper = DatabindCodec.prettyMapper();
+    prettyMapper.registerModule(new JavaTimeModule());
   }
 
   public Uni<Boolean> connect() {
@@ -111,22 +120,18 @@ public class Lumia {
   }
 
   public Multi<JsonObject> sendColor(final Rgb rgb, final Integer brightness,
-      final Duration duration, final Duration transition, final Boolean def,
-      final Boolean skipQueue, final List<LumiaLight> lights) {
-
+      final MessageOptions messageOptions) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(Json.encode(rgb))
-        .setBrightness(brightness).setDuration(duration.toMillis())
-        .setTransition(transition.toMillis()).setHold(def).setSkipQueue(skipQueue)
-        .setLights(lights);
+        .setBrightness(brightness).setHold(messageOptions.getHoldDefault());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
         packParam);
     logger.info(() -> String.format("Coloring :- Data: %s", Json.encode(pack)));
     return send(pack);
   }
 
-  public Multi<JsonObject> sendCommand(final String command, final Boolean def,
+  public Multi<JsonObject> sendCommand(final String command, final Boolean hold,
       final Boolean skipQueue) {
-    final LumiaPackParam packParam = new LumiaPackParam().setValue(command).setHold(def)
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(command).setHold(hold)
         .setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHAT_COMMAND,
         packParam);
@@ -134,10 +139,10 @@ public class Lumia {
     return send(pack);
   }
 
-  public Multi<JsonObject> sendBrightness(final Integer brightness, final Duration transition,
-      final Boolean skipQueue) {
+  public Multi<JsonObject> sendBrightness(final Integer brightness,
+      final MessageOptions messageOptions) {
     final LumiaPackParam packParam = new LumiaPackParam().setBrightness(brightness)
-        .setTransition(transition.toMillis()).setSkipQueue(skipQueue);
+        .setDuration(messageOptions.getDuration()).setTransition(messageOptions.getTransition());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
         packParam);
     logger.info(() -> String.format("Brightness :- Data: %s", Json.encode(pack)));

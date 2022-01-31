@@ -1,8 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //DEPS com.lumiastream:lumiastream-websocket-sdk:0.1.0-SNAPSHOT
 
-import com.lumiastream.client.LumiaOptions;
+import com.lumiastream.client.ConnectionOptions;
 import com.lumiastream.client.Lumia;
+import com.lumiastream.client.MessageOptions;
 import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
 import com.lumiastream.common.Rgb;
@@ -10,13 +11,14 @@ import com.lumiastream.common.enums.LumiaAlertValue;
 import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.enums.Platform;
 import java.time.Duration;
-import java.util.List;
 
 public class LumiaExample {
 
   public static void main(String... args) {
     final Lumia client = Lumia
-        .getInstance(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "insert-token"));
+        .getInstance(
+            new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
+                .setToken("insert-token"));
     client.connect().await().indefinitely();
     client.getInfo().subscribe().with(System.out::println);
 
@@ -30,11 +32,11 @@ public class LumiaExample {
     client.sendCommand("red", false, false).subscribe().with(System.out::println);
 
     // Sending a basic color
-    client.sendColor(new Rgb(255, 0, 0), 60, Duration.ofMillis(1000), Duration.ofMillis(0), false,
-        false, List.of());
+    final MessageOptions messageOptions = new MessageOptions().setDuration(Duration.ofMillis(1000));
+    client.sendColor(new Rgb(255, 0, 0), 60, messageOptions);
 
     // Sending a brightness
-    client.sendBrightness(100, Duration.ofMillis(0), false).subscribe().with(System.out::println);
+    client.sendBrightness(100, new MessageOptions()).subscribe().with(System.out::println);
 
     // Sending a TTS message
     client.sendTts("This SDK is the best", 100, "").subscribe().with(System.out::println);

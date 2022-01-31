@@ -3,6 +3,7 @@ package com.lumiastream.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.lumiastream.common.enums.Platform;
+import java.time.Duration;
 import java.util.List;
 
 @JsonInclude(Include.NON_NULL)
@@ -16,8 +17,8 @@ public class LumiaPackParam {
   private String voice;
   private Integer volume;
   private Integer brightness;
-  private Long duration;
-  private Long transition;
+  private Duration duration;
+  private Duration transition;
   private ExtraSetting extraSetting;
 
   public String getValue() {
@@ -92,20 +93,20 @@ public class LumiaPackParam {
     return this;
   }
 
-  public Long getDuration() {
+  public Duration getDuration() {
     return duration;
   }
 
-  public LumiaPackParam setDuration(final Long duration) {
+  public LumiaPackParam setDuration(final Duration duration) {
     this.duration = duration;
     return this;
   }
 
-  public Long getTransition() {
+  public Duration getTransition() {
     return transition;
   }
 
-  public LumiaPackParam setTransition(final Long transition) {
+  public LumiaPackParam setTransition(final Duration transition) {
     this.transition = transition;
     return this;
   }

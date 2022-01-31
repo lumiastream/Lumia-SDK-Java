@@ -3,20 +3,17 @@ package com.lumiastream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.lumiastream.client.LumiaOptions;
+import com.lumiastream.client.ConnectionOptions;
 import com.lumiastream.client.Lumia;
-import com.lumiastream.common.enums.LightBrand;
-import com.lumiastream.common.enums.LumiaAlertValue;
-import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
-import com.lumiastream.common.LumiaLight;
+import com.lumiastream.client.MessageOptions;
 import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
-import com.lumiastream.common.enums.Platform;
 import com.lumiastream.common.Rgb;
-import com.sun.tools.javac.util.List;
+import com.lumiastream.common.enums.LumiaAlertValue;
+import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
+import com.lumiastream.common.enums.Platform;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerOptions;
-import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,7 +28,10 @@ public class LumiaIntegrationTest {
     Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39231))
         .webSocketHandler(event -> event.handler(event::write)).listen();
 
-    client = Lumia.getInstance(new LumiaOptions("127.0.0.1", 39231, "lumia-java-sdk", "39231"));
+    client = Lumia
+        .getInstance(
+            new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
+                .setToken("39231"));
     final Boolean isWebsocketClosed = client.connect().await().indefinitely();
     assertFalse(isWebsocketClosed);
   }
@@ -82,7 +82,7 @@ public class LumiaIntegrationTest {
 
   @Test
   public void testSendBrightness() {
-    client.sendBrightness(1, Duration.ofDays(1), true)
+    client.sendBrightness(1, new MessageOptions())
         .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
   }
 
@@ -96,8 +96,7 @@ public class LumiaIntegrationTest {
 
   @Test
   public void testSendColor() {
-    client.sendColor(new Rgb(1, 2, 3), 4, Duration.ofNanos(1), Duration.ofMillis(1), true, false,
-        List.of(new LumiaLight(LightBrand.COLOLIGHT, LightBrand.COLOLIGHT.getId())))
+    client.sendColor(new Rgb(1, 2, 3), 4, new MessageOptions())
         .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
   }
 
@@ -121,8 +120,12 @@ public class LumiaIntegrationTest {
     Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39233))
         .webSocketHandler(event -> event.handler(event::write)).listen();
 
-    client = Lumia.getInstance(new LumiaOptions("127.0.0.1", 39230, "lumia-java-sdk", "39230"));
+    client = Lumia
+        .getInstance(
+            new ConnectionOptions().setHost("127.0.0.1").setPort(39230).setName("lumia-java-sdk")
+                .setToken("39230"));
     assertEquals(client.getWebSocket(), null);
-    client.getInfo().subscribe().with(jsonObject -> assertEquals(jsonObject.getString("message"),"Websocket not connected"));
+    client.getInfo().subscribe().with(
+        jsonObject -> assertEquals(jsonObject.getString("message"), "Websocket not connected"));
   }
 }
