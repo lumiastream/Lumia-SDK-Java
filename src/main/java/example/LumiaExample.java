@@ -24,7 +24,7 @@ public class LumiaExample {
         .getInstance(
             new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
                 .setToken("insert-token"));
-    client.connect().await().indefinitely();
+    client.connect(false).await().indefinitely();
     client.getInfo().subscribe().with(jsonObject -> logger.info(jsonObject::encode));
 
     // Send an alert

@@ -11,6 +11,7 @@ import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.enums.Platform;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.groups.UniOnFailure;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
@@ -48,14 +49,13 @@ public class Lumia {
     prettyMapper.registerModule(new JavaTimeModule());
   }
 
-  public Uni<Boolean> connect() {
-
+  public Uni<Boolean> connect(final boolean shouldAutoReconnect) {
     final StringBuilder uri = new StringBuilder().append("/api?token=")
         .append(lumiaOptions.getToken())
         .append("&name=").append(lumiaOptions.getName());
     logger.info(() -> String.format("Connecting:- URI: %s", uri));
 
-    return Vertx.vertx().createHttpClient()
+    final UniOnFailure<Boolean> onFailure = Vertx.vertx().createHttpClient()
         .webSocket(lumiaOptions.getPort(), lumiaOptions.getHost(), uri.toString())
         .onItem().transform(webSocket1 -> {
           webSocket = webSocket1;
@@ -65,7 +65,12 @@ public class Lumia {
         .onFailure(throwable -> {
           throwable.printStackTrace();
           return true;
-        }).recoverWithItem(true);
+        });
+    if (shouldAutoReconnect) {
+      return onFailure.retry().indefinitely();
+    } else {
+      return onFailure.recoverWithItem(true);
+    }
   }
 
   public Multi<JsonObject> getInfo() {

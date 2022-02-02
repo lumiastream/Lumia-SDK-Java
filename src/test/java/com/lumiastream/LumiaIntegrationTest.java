@@ -14,6 +14,7 @@ import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.enums.Platform;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerOptions;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,7 +33,7 @@ public class LumiaIntegrationTest {
         .getInstance(
             new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
                 .setToken("39231"));
-    final Boolean isWebsocketClosed = client.connect().await().indefinitely();
+    final Boolean isWebsocketClosed = client.connect(false).await().atMost(Duration.ofMinutes(1));
     assertFalse(isWebsocketClosed);
   }
 
