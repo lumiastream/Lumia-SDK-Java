@@ -72,5 +72,26 @@ public class LumiaExample {
           break;
       }
     });
+
+    // listen to events using Mutiny Multi API
+    client.getWebSocket().toMulti().subscribe().with(buffer -> {
+      final String type = buffer.toJsonObject().getString("type");
+      System.out.println("Incoming: " + type);
+      switch (type) {
+        case "states":
+          System.out.println("States have been updated: " + buffer.toJsonObject().encode());
+          break;
+        case "alert":
+          System.out.println("New alert: " + buffer.toJsonObject().encode());
+          break;
+        case "command":
+          System.out
+              .println("A Chat Command is being triggered: " + buffer.toJsonObject().encode());
+          break;
+        case "chat":
+          System.out.println("New chat message: " + buffer.toJsonObject().encode());
+          break;
+      }
+    });
   }
 }
