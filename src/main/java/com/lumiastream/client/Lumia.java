@@ -18,6 +18,7 @@ import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.http.WebSocket;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 public class Lumia {
@@ -89,14 +90,22 @@ public class Lumia {
   }
 
   private Multi<JsonObject> sendWebsocketMessage(final String json) {
+    final CountDownLatch countDownLatch = new CountDownLatch(1);
     JsonObject result = new JsonObject();
     if (webSocket != null) {
       logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s"
           , json, webSocket.isClosed()));
       webSocket.handler(buffer -> result.mergeIn(new JsonObject(buffer.toString())))
-          .writeAndForget(Buffer.buffer(json));
+          .write(Buffer.buffer(json));
+      countDownLatch.countDown();
     } else {
-      result.put("message", "Websocket not connected");
+      result.put("message", "WebSocket not connected");
+      countDownLatch.countDown();
+    }
+    try {
+      countDownLatch.await();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
     return Multi.createFrom().item(result);
   }

@@ -12,8 +12,10 @@ import com.lumiastream.common.Rgb;
 import com.lumiastream.common.enums.LumiaAlertValue;
 import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.enums.Platform;
+import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.JsonObject;
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.AfterAll;
@@ -39,81 +41,78 @@ public class LumiaIntegrationTest {
 
   @AfterAll
   public static void testStop() throws InterruptedException {
-    final CountDownLatch countDownLatch = new CountDownLatch(1);
-    client.stop().subscribe().with(jsonObject -> {
-      countDownLatch.countDown();
-      System.out.println(jsonObject.encode());
-    });
-    countDownLatch.await();
+//    final CountDownLatch countDownLatch = new CountDownLatch(1);
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client.stop().subscribe()
+        .withSubscriber(AssertSubscriber.create(1));
+
+        jsonObjectAssertSubscriber.assertCompleted().assertItems(new JsonObject().put("message","WebSocket not connected"));
   }
 
   @Test
   public void testGetInfo() throws InterruptedException {
-    final CountDownLatch countDownLatch = new CountDownLatch(1);
-    client.getInfo().subscribe().with(jsonObject -> {
-      countDownLatch.countDown();
-      System.out.println(jsonObject.encode());
-    });
-    countDownLatch.await();
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client.getInfo().subscribe()
+        .withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
+
   }
 
   @Test
   public void testSend() throws InterruptedException {
-    final CountDownLatch countDownLatch = new CountDownLatch(1);
     final LumiaPackParam lumiaPackParam = new LumiaPackParam()
         .setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
-    client.send(new LumiaSendPack(LumiaExternalActivityCommandType.ALERT, lumiaPackParam))
-        .subscribe().with(jsonObject -> {
-      countDownLatch.countDown();
-      System.out.println(jsonObject.encode());
-    });
-    countDownLatch.await();
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client
+        .send(new LumiaSendPack(LumiaExternalActivityCommandType.ALERT, lumiaPackParam))
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
   }
 
   @Test
   public void testSendAlert() throws InterruptedException {
     final CountDownLatch countDownLatch = new CountDownLatch(1);
-    client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
-        .subscribe().with(jsonObject -> {
-      countDownLatch.countDown();
-      System.out.println(jsonObject.encode());
-    });
-    countDownLatch.await();
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client
+        .sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
   }
 
   @Test
   public void testSendBrightness() {
-    client.sendBrightness(1, new MessageOptions())
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client
+        .sendBrightness(1, new MessageOptions())
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
   }
 
   @Test
   public void testSendChatbot() {
-    client.sendChatBot(Platform.TWITCH, "ME!")
-        .subscribe().with(jsonObject -> {
-      System.out.println(jsonObject.encode());
-    });
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client
+        .sendChatBot(Platform.TWITCH, "ME!")
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
+
   }
 
   @Test
   public void testSendColor() {
-    client.sendColor(new Rgb(1, 2, 3), 4, new MessageOptions())
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client
+        .sendColor(new Rgb(1, 2, 3), 4, new MessageOptions())
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
   }
 
   @Test
   public void testSendCommand() {
-    client.sendCommand(LumiaExternalActivityCommandType.CHAT_COMMAND.getValue(), false, true)
-        .subscribe().with(jsonObject -> {
-
-      System.out.println(jsonObject.encode());
-    });
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client
+        .sendCommand(LumiaExternalActivityCommandType.CHAT_COMMAND.getValue(), false, true)
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
   }
 
   @Test
   public void testSendTts() {
-    client.sendTts("we", 10, "dd")
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+    final AssertSubscriber<JsonObject> jsonObjectAssertSubscriber = client.sendTts("we", 10, "dd")
+        .subscribe().withSubscriber(AssertSubscriber.create(1));
+    jsonObjectAssertSubscriber.assertCompleted();
   }
 
   @Test
@@ -127,6 +126,6 @@ public class LumiaIntegrationTest {
                 .setToken("39230"));
     assertEquals(client.getWebSocket(), null);
     client.getInfo().subscribe().with(
-        jsonObject -> assertEquals(jsonObject.getString("message"), "Websocket not connected"));
+        jsonObject -> assertEquals(jsonObject.getString("message"), "WebSocket not connected"));
   }
 }
