@@ -10,7 +10,6 @@ import com.lumiastream.common.Rgb;
 import com.lumiastream.common.enums.LumiaAlertValue;
 import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.enums.Platform;
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import java.time.Duration;
 import java.util.logging.Logger;
@@ -25,65 +24,54 @@ public class LumiaExample {
         .getInstance(
             new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
                 .setToken("insert-token"));
-    client.connect(false).future().onSuccess(new Handler<Boolean>() {
-      @Override
-      public void handle(Boolean event) {
-        System.out.println("<<<<<<<<<<" + event);
+    client.connect(false).future().onSuccess(successEvent -> {
+      System.out.println("WebSocket closed: " + successEvent);
 
+      // Send an alert
+      client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER,
+          data -> System.out.println("ALERT: " + data.toJsonObject()));
+      client.getInfo(data -> System.out.println("INFO: " + data.toJsonObject()));
 
-        // Send an alert
-        client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER,
-            data -> System.out.println("aaaaaaaaaalerrrrrrrrt"+data.toJsonObject()));
-        client.getInfo(data -> System.out.println("iiiiiiiiinffffffffffooooooooo"+data.toJsonObject()));
+      // Sending a command
+      client.sendCommand("red", false, false,
+          data -> System.out.println("COMMAND: " + data.toJsonObject()));
 
-        // Sending a command
-        client.sendCommand("red", false, false, data -> System.out.println("cccconnnnamd"+data.toJsonObject()));
+      // Sending a basic color
+      final MessageOptions messageOptions = new MessageOptions()
+          .setDuration(Duration.ofMillis(1000));
+      client.sendColor(new Rgb(255, 0, 0), 60, messageOptions,
+          data -> System.out.println("COLOR: " + data.toJsonObject()));
 
-        // Sending a basic color
-        final MessageOptions messageOptions = new MessageOptions()
-            .setDuration(Duration.ofMillis(1000));
-        client.sendColor(new Rgb(255, 0, 0), 60, messageOptions,
-            data -> System.out.println("coooloooorrrrr"+data.toJsonObject()));
+      // Sending a brightness
+      client.sendBrightness(100, new MessageOptions(),
+          data -> System.out.println("BRIGHT: " + data.toJsonObject()));
 
-        // Sending a brightness
-        client.sendBrightness(100, new MessageOptions(),
-            data -> System.out.println("brrritthgns"+data.toJsonObject()));
+      // Sending a TTS message
+      client.sendTts("This SDK is the best", 100, "",
+          data -> System.out.println("TTS: " + data.toJsonObject()));
 
-        // Sending a TTS message
-        client.sendTts("This SDK is the best", 100, "",
-            data -> System.out.println("tttttsssttttt"+data.toJsonObject()));
+      // Sending a Chat bot message
+      client.sendChatBot(Platform.TWITCH, "This SDK is the best",
+          data -> System.out.println("CHAT: " + data.toJsonObject()));
 
-        // Sending a Chat bot message
-        client.sendChatBot(Platform.TWITCH, "This SDK is the best",
-            data -> System.out.println("chaaatttt"+data.toJsonObject()));
+      // Sending a raw successEvent example
+      final LumiaPackParam lumiaPackParam = new LumiaPackParam();
+      lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
+      final LumiaSendPack lumiaSendPack = new LumiaSendPack(
+          LumiaExternalActivityCommandType.ALERT,
+          lumiaPackParam);
+      client.send(lumiaSendPack, data -> System.out.println("SEND: \n" + data.toJsonObject()));
 
-        // Sending a raw event example
-        final LumiaPackParam lumiaPackParam = new LumiaPackParam();
-        lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
-        final LumiaSendPack lumiaSendPack = new LumiaSendPack(
-            LumiaExternalActivityCommandType.ALERT,
-            lumiaPackParam);
-        client.send(lumiaSendPack, data -> System.out.println("senddddD\n"+data.toJsonObject()));
-
-        // listen to events using the websocket handler directly
-//    client.getWebSocket().handler(buffer -> {
-//      System.out.println(buffer.toJsonObject().encode());
-//      final String type = buffer.toJsonObject().getString("type");
-//      output(buffer, type);
-//    }).exceptionHandler(new Handler<Throwable>() {
-//      @Override
-//      public void handle(Throwable event) {
-//        event.printStackTrace();
-//      }
-//    });
-
-      }
-    }).onFailure(new Handler<Throwable>() {
-      @Override
-      public void handle(Throwable event) {
-        event.printStackTrace();
-      }
-    });
+      // listen to events using the websocket handler directly
+      client.getWebSocket().handler(buffer -> {
+        System.out.println(buffer.toJsonObject().encode());
+        final String type = buffer.toJsonObject().getString("type");
+        if (type != null) {
+          output(buffer, type);
+        }
+      }).closeHandler(closeEvent -> System.out.println("WebSocket closed."))
+          .exceptionHandler(exEvent -> exEvent.printStackTrace());
+    }).onFailure(failureEvent -> failureEvent.printStackTrace());
   }
 
   private static void output(Buffer buffer, String type) {

@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 
 public class Lumia {
 
-  HashMap<Integer, Handler<Buffer>> hashMap = new HashMap<Integer , Handler<Buffer>>();
+  final Vertx vertx = Vertx.vertx();
+  HashMap<Integer, Handler<Buffer>> hashMap = new HashMap<>();
   private WebSocket webSocket;
   private final ConnectionOptions lumiaOptions;
   private static final Logger logger = Logger
@@ -57,123 +58,132 @@ public class Lumia {
         .append("&name=").append(lumiaOptions.getName());
     logger.info(() -> String.format("Connecting:- URI: %s", uri));
 
-    Vertx.vertx().createHttpClient()
+    vertx.createHttpClient()
         .webSocket(lumiaOptions.getPort(), lumiaOptions.getHost(), uri.toString())
-        .onSuccess(new Handler<WebSocket>() {
-          @Override
-          public void handle(WebSocket event) {
-            webSocket = event;
-            result.complete(event.isClosed());
-          }
+        .onSuccess(successEvent -> {
+          webSocket = successEvent;
+          webSocket
+              .closeHandler(closeEvent -> connect(shouldAutoReconnect));
+          result.complete(successEvent.isClosed());
         })
-        .onFailure(new Handler<Throwable>() {
-          @Override
-          public void handle(Throwable event) {
-            event.printStackTrace();
-            result.complete(true);
-          }
+        .onFailure(failureEvent -> {
+          failureEvent.printStackTrace();
+          logger.info(() -> "Reconnecting ...\n");
+          connect(true);
+          result.complete(true);
         });
     return result;
   }
 
-  public void getInfo(final Handler<Buffer> function) {
+  public void getInfo(final Handler<Buffer> handler) {
     final JsonObject getInfoPayload = new JsonObject().put("retrieve", true)
         .put("method", "retrieve");
     final Buffer buffer = Buffer.buffer(getInfoPayload.toString());
-    logger.info(() -> String.format("Getting Info:- Data: %s", buffer.toString()));
-    sendWebsocketMessage(buffer.toJsonObject(),
-        function);
+    logger.info(() -> String.format("Getting Info:- Data: %s", buffer));
+    sendWebSocketMessage(buffer.toJsonObject(), handler);
   }
 
   public void stop(
-      final Handler<Buffer> function) {
+      final Handler<Buffer> handler) {
     final JsonObject getInfoPayload = new JsonObject().put("method", "stop");
     final Buffer buffer = Buffer.buffer(getInfoPayload.toString());
     logger.info(() -> String.format("Stopping:- Data: %s", buffer.toString()));
-    sendWebsocketMessage(buffer.toJsonObject(),
-        function);
+    sendWebSocketMessage(buffer.toJsonObject(),
+        handler);
   }
 
-  private void sendWebsocketMessage(final JsonObject json, final Handler<Buffer> handler) {
+  private void sendWebSocketMessage(final JsonObject json, final Handler<Buffer> handler) {
     final int context = handler.hashCode();
     hashMap.put(context, handler);
     json.put("context", context);
     if (webSocket != null) {
-      logger.info(() -> String.format("Sending Websocket Message:- Data: %s: isClosed: %s"
+      logger.info(() -> String.format("Sending WebSocket Message:- Data: %s: WebSocket Closed: %s"
           , json, webSocket.isClosed()));
-      webSocket.handler(new Handler<Buffer>() {
-        @Override
-        public void handle(Buffer event) {
-          final Integer context = event.toJsonObject().getInteger("context");
-          hashMap.get(context).handle(event);
-          hashMap.remove(context);
+      webSocket.handler(event -> {
+        final JsonObject entries = event.toJsonObject();
+        final Integer context1 = entries.getInteger("context");
+        if (context1 == null) {
+          logger.warning(() -> String
+              .format("`context` is absent from server message:- Data: %s: WebSocket Closed: %s"
+                  , entries.encode(), webSocket.isClosed()));
+        } else {
+          final Handler<Buffer> bufferHandler = hashMap.get(context1);
+          if (bufferHandler == null) {
+            logger.warning(() -> String
+                .format(
+                    "No handler registered for this context:- context: %s: WebSocket Closed: %s"
+                    , context1, webSocket.isClosed()));
+          } else {
+            bufferHandler.handle(event);
+            hashMap.remove(context1);
+          }
         }
       }).write(json.toBuffer());
     }
   }
 
-  public void send(final LumiaSendPack pack, final Handler<Buffer> function) {
+  public void send(final LumiaSendPack pack, final Handler<Buffer> handler) {
 
     final String packString = Json.encode(pack);
     final JsonObject message = new JsonObject().put("lsorigin", "lumia-sdk");
     final JsonObject merged = message.mergeIn(new JsonObject(packString));
     logger.info(() -> String.format("Data: %s", merged.encode()));
-    sendWebsocketMessage(merged, function);
+    sendWebSocketMessage(merged, handler);
   }
 
-  public void sendAlert(final LumiaAlertValue alert, final Handler<Buffer> function) {
+  public void sendAlert(final LumiaAlertValue alert, final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(alert.getValue());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.ALERT, packParam);
     logger.info(() -> String.format("Alerting :- Data: %s", Json.encode(pack)));
-    send(pack, function);
+    send(pack, handler);
   }
 
   public void sendChatBot(final Platform platform, final String text,
-      final Handler<Buffer> function) {
+      final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setPlatform(platform);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHATBOT_MESSAGE,
         packParam);
     logger.info(() -> String.format("Chat Botting :- Data: %s", Json.encode(pack)));
-    send(pack, function);
+    send(pack, handler);
   }
 
   public void sendColor(final Rgb rgb, final Integer brightness,
-      final MessageOptions messageOptions, final Handler<Buffer> function) {
+      final MessageOptions messageOptions, final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(Json.encode(rgb))
         .setBrightness(brightness).setHold(messageOptions.getHoldDefault());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
         packParam);
     logger.info(() -> String.format("Coloring :- Data: %s", Json.encode(pack)));
-    send(pack, function);
+    send(pack, handler);
   }
 
   public void sendCommand(final String command, final Boolean hold,
-      final Boolean skipQueue, final Handler<Buffer> function) {
+      final Boolean skipQueue, final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(command).setHold(hold)
         .setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHAT_COMMAND,
         packParam);
     logger.info(() -> String.format("Commanding :- Data: %s", Json.encode(pack)));
-    send(pack, function);
+    send(pack, handler);
   }
 
   public void sendBrightness(final Integer brightness,
-      final MessageOptions messageOptions, final Handler<Buffer> function) {
+      final MessageOptions messageOptions, final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setBrightness(brightness)
         .setDuration(messageOptions.getDuration()).setTransition(messageOptions.getTransition());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
         packParam);
     logger.info(() -> String.format("Brightness :- Data: %s", Json.encode(pack)));
-    send(pack, function);
+    send(pack, handler);
   }
 
   public void sendTts(final String text, final Integer volume, final String voice,
-      final Handler<Buffer> function) {
+      final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setVolume(volume)
         .setVoice(voice);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.TTS, packParam);
     logger.info(() -> String.format("TTSing :- Data: %s", Json.encode(pack)));
-    send(pack, function);
+    send(pack, handler);
   }
 
 }
