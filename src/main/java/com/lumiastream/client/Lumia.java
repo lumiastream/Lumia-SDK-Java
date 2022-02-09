@@ -17,17 +17,22 @@ import io.vertx.core.http.WebSocket;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
+import java.time.Duration;
 import java.util.HashMap;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public class Lumia {
 
   final Vertx vertx = Vertx.vertx();
-  HashMap<Integer, Handler<Buffer>> hashMap = new HashMap<>();
+  final HashMap<Integer, Handler<Buffer>> handlerCache = new HashMap<>();
   private WebSocket webSocket;
   private final ConnectionOptions lumiaOptions;
-  private static final Logger logger = Logger
-      .getLogger(Lumia.class.getCanonicalName());
+  private static final Logger logger = Logger.getLogger(Lumia.class.getCanonicalName());
+
+  public void setWebSocket(WebSocket webSocket) {
+    this.webSocket = webSocket;
+  }
 
   public WebSocket getWebSocket() {
     return webSocket;
@@ -46,7 +51,6 @@ public class Lumia {
   private static void registerJavaDateTimeEncoders() {
     final ObjectMapper mapper = DatabindCodec.mapper();
     mapper.registerModule(new JavaTimeModule());
-
     final ObjectMapper prettyMapper = DatabindCodec.prettyMapper();
     prettyMapper.registerModule(new JavaTimeModule());
   }
@@ -54,25 +58,53 @@ public class Lumia {
   public Promise<Boolean> connect(final boolean shouldAutoReconnect) {
     final Promise<Boolean> result = Promise.promise();
     final StringBuilder uri = new StringBuilder().append("/api?token=")
-        .append(lumiaOptions.getToken())
-        .append("&name=").append(lumiaOptions.getName());
+        .append(lumiaOptions.getToken()).append("&name=").append(lumiaOptions.getName());
     logger.info(() -> String.format("Connecting:- URI: %s", uri));
-
     vertx.createHttpClient()
         .webSocket(lumiaOptions.getPort(), lumiaOptions.getHost(), uri.toString())
-        .onSuccess(successEvent -> {
-          webSocket = successEvent;
-          webSocket
-              .closeHandler(closeEvent -> connect(shouldAutoReconnect));
-          result.complete(successEvent.isClosed());
+        .onSuccess(socket -> {
+          logger.info(() -> "WebSocket connected.");
+          this.setWebSocket(socket);
+          this.getWebSocket().exceptionHandler(closeEvent -> reconnect(shouldAutoReconnect));
+          result.complete(socket.isClosed());
         })
         .onFailure(failureEvent -> {
           failureEvent.printStackTrace();
           logger.info(() -> "Reconnecting ...\n");
-          connect(true);
+          reconnect(true);
           result.complete(true);
         });
     return result;
+  }
+
+  final Supplier<Handler<Buffer>> handlerSupplier = () -> event -> {
+    final JsonObject entries = event.toJsonObject();
+    final Integer receivedContext = entries.getInteger("context");
+    if (receivedContext == null) {
+      logger.warning(() -> String
+          .format("`context` is absent from server message:- Data: %s: WebSocket Closed: %s"
+              , entries.encode(), this.getWebSocket().isClosed()));
+    } else {
+      final Handler<Buffer> bufferHandler = handlerCache.get(receivedContext);
+      if (bufferHandler == null) {
+        logger.warning(() -> String
+            .format("No handler registered for this context:- context: %s: WebSocket Closed: %s"
+                , receivedContext, this.getWebSocket().isClosed()));
+      } else {
+        bufferHandler.handle(event);
+        handlerCache.remove(receivedContext);
+      }
+    }
+  };
+
+  private void reconnect(boolean shouldAutoReconnect) {
+    vertx.setTimer(Duration.ofSeconds(5).toMillis(), timerEvent -> {
+      connect(shouldAutoReconnect).future().onSuccess(isClosed -> {
+        if (!isClosed) {
+          getWebSocket().handler(handlerSupplier.get());
+        }
+      });
+    });
   }
 
   public void getInfo(final Handler<Buffer> handler) {
@@ -83,47 +115,25 @@ public class Lumia {
     sendWebSocketMessage(buffer.toJsonObject(), handler);
   }
 
-  public void stop(
-      final Handler<Buffer> handler) {
+  public void stop(final Handler<Buffer> handler) {
     final JsonObject getInfoPayload = new JsonObject().put("method", "stop");
     final Buffer buffer = Buffer.buffer(getInfoPayload.toString());
     logger.info(() -> String.format("Stopping:- Data: %s", buffer.toString()));
-    sendWebSocketMessage(buffer.toJsonObject(),
-        handler);
+    sendWebSocketMessage(buffer.toJsonObject(), handler);
   }
 
   private void sendWebSocketMessage(final JsonObject json, final Handler<Buffer> handler) {
     final int context = handler.hashCode();
-    hashMap.put(context, handler);
+    handlerCache.put(context, handler);
     json.put("context", context);
     if (webSocket != null) {
       logger.info(() -> String.format("Sending WebSocket Message:- Data: %s: WebSocket Closed: %s"
           , json, webSocket.isClosed()));
-      webSocket.handler(event -> {
-        final JsonObject entries = event.toJsonObject();
-        final Integer context1 = entries.getInteger("context");
-        if (context1 == null) {
-          logger.warning(() -> String
-              .format("`context` is absent from server message:- Data: %s: WebSocket Closed: %s"
-                  , entries.encode(), webSocket.isClosed()));
-        } else {
-          final Handler<Buffer> bufferHandler = hashMap.get(context1);
-          if (bufferHandler == null) {
-            logger.warning(() -> String
-                .format(
-                    "No handler registered for this context:- context: %s: WebSocket Closed: %s"
-                    , context1, webSocket.isClosed()));
-          } else {
-            bufferHandler.handle(event);
-            hashMap.remove(context1);
-          }
-        }
-      }).write(json.toBuffer());
+      webSocket.handler(handlerSupplier.get()).write(json.toBuffer());
     }
   }
 
   public void send(final LumiaSendPack pack, final Handler<Buffer> handler) {
-
     final String packString = Json.encode(pack);
     final JsonObject message = new JsonObject().put("lsorigin", "lumia-sdk");
     final JsonObject merged = message.mergeIn(new JsonObject(packString));
