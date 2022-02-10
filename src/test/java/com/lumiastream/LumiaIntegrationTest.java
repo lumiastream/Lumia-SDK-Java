@@ -20,7 +20,6 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.junit5.VertxTestContext.ExecutionBlock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterAll;
@@ -60,7 +59,7 @@ public class LumiaIntegrationTest {
       @Override
       public void handle(Buffer event) {
         System.out.println(event.toJsonObject().encode());
-
+        countDownLatch.countDown();
       }
     });
     countDownLatch.await();
@@ -134,7 +133,7 @@ public class LumiaIntegrationTest {
   }
 
   @Test
-  public void testWebsocketNotConnected() {
+  public void testWebSocketNotConnected() {
     Vertx.vertx().createHttpServer(new HttpServerOptions().setPort(39233))
         .webSocketHandler(event -> event.handler(event::write)).listen();
 

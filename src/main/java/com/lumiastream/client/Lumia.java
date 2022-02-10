@@ -77,7 +77,7 @@ public class Lumia {
     return result;
   }
 
-  final Supplier<Handler<Buffer>> handlerSupplier = () -> event -> {
+  private final Supplier<Handler<Buffer>> handlerSupplier = () -> event -> {
     final JsonObject entries = event.toJsonObject();
     final Integer receivedContext = entries.getInteger("context");
     if (receivedContext == null) {
@@ -97,7 +97,7 @@ public class Lumia {
     }
   };
 
-  private void reconnect(boolean shouldAutoReconnect) {
+  private void reconnect(final boolean shouldAutoReconnect) {
     vertx.setTimer(Duration.ofSeconds(5).toMillis(), timerEvent -> {
       connect(shouldAutoReconnect).future().onSuccess(isClosed -> {
         if (!isClosed) {
@@ -167,8 +167,8 @@ public class Lumia {
     send(pack, handler);
   }
 
-  public void sendCommand(final String command, final Boolean hold,
-      final Boolean skipQueue, final Handler<Buffer> handler) {
+  public void sendCommand(final String command, final Boolean hold, final Boolean skipQueue,
+      final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(command).setHold(hold)
         .setSkipQueue(skipQueue);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.CHAT_COMMAND,
@@ -177,8 +177,8 @@ public class Lumia {
     send(pack, handler);
   }
 
-  public void sendBrightness(final Integer brightness,
-      final MessageOptions messageOptions, final Handler<Buffer> handler) {
+  public void sendBrightness(final Integer brightness, final MessageOptions messageOptions,
+      final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setBrightness(brightness)
         .setDuration(messageOptions.getDuration()).setTransition(messageOptions.getTransition());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
