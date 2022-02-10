@@ -3,10 +3,10 @@
 ## Building
 
 To launch the tests:
+
 ```
 ./gradlew clean test
 ```
-
 
 This repository is for the Lumia Stream SDK releases and documentation.
 
@@ -26,21 +26,21 @@ custom and unique lighting experience.
 - [Sample](#sample)
 - [Run a mock server](#run-a-mock-server)
 - [Events](#events)
-    - [States](#states)
-    - [Chat Command](#chat-command)
-    - [Chat](#chat)
-    - [Alert](#alert)
+  - [States](#states)
+  - [Chat Command](#chat-command)
+  - [Chat](#chat)
+  - [Alert](#alert)
 - [Control](#control)
-    - [Get Settings](#get-settings)
-    - [Send Command](#send-command)
-    - [Send Color](#send-color)
-    - [Send Color to specific lights](#send-color-to-specific-lights)
-    - [Send Brightness](#send-brightness)
-    - [Send TTS](#send-tts)
-    - [Send Chat bot](#send-chat-bot)
-    - [Send Chat Command](#send-chat-command)
-    - [Send Chat](#send-chat)
-    - [Send Alert](#send-alert)
+  - [Get Settings](#get-settings)
+  - [Send Command](#send-command)
+  - [Send Color](#send-color)
+  - [Send Color to specific lights](#send-color-to-specific-lights)
+  - [Send Brightness](#send-brightness)
+  - [Send TTS](#send-tts)
+  - [Send Chat bot](#send-chat-bot)
+  - [Send Chat Command](#send-chat-command)
+  - [Send Chat](#send-chat)
+  - [Send Alert](#send-alert)
   - [Resources](#resources)
   - [Let's link](#lets-link)
 - [Lumia-SDK-Java](#lumia-sdk-java)
@@ -115,9 +115,9 @@ These events range from the app state being changed, raw chat messages, chat com
 
 An event message will contain at least the following base fields:
 
-- `type` _LumiaSdkEventTypes_: the type of event.
+- `type` _LumiaEventTypes_: the type of event.
 - `origin` _EventOrigins (optional)_: where the event originated from. i.e: twitch for example
-- `data` _ILumiaSdkEventStateBody | ILumiaSdkEventChatCommandBody | ILumiaSdkEventChatBody | ILumiaSdkEventAlertBody | ILumiaSdkEventStateBody (optional)_: the body of the event
+- `data` _ILumiaEventStateBody | ILumiaEventChatCommandBody | ILumiaEventChatBody | ILumiaEventAlertBody | ILumiaEventStateBody (optional)_: the body of the event
 
 Additional fields may be present in the event message depending on the event type.
 
@@ -129,9 +129,9 @@ States indicate the current status the Lumia Stream is in
 
 ```json
 {
- "origin": null,
- "type": "states",
- "data": { "on": 1, "streamMode": 1, "fuze": 0 }
+  "origin": null,
+  "type": "states",
+  "data": { "on": 1, "streamMode": 1, "fuze": 0 }
 }
 ```
 
@@ -436,4 +436,5 @@ client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
 ## Let's link
 
 Reach out to us on Discord to show off what you're working on, or to just lounge around and speak about ideas [Link](https://discord.gg/R8rCaKb)
+
 # Lumia-SDK-Java

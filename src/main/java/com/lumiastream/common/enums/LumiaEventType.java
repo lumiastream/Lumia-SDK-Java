@@ -10,12 +10,15 @@ public enum LumiaEventType {
   TWITCH_POINTS("twitch-points"),
   TWITCH_EXTENSIONS("twitch-extesions"),
   TROVO_SPELL("trovo-spell"),
-  PULSE( "pulse"),
-  ALERT("alert");
+  PULSE("pulse"),
+  ALERT("alert"),
+  GAMESGLOW_ALERT("gamesglow_alert"),
+  GAMESGLOW_COMMAND("gamesglow_command"),
+  GAMESGLOW_VIRTUALLIGHT("gamesglow_virutallight");
 
   private final String value;
 
-  LumiaEventType( final String value) {
+  LumiaEventType(final String value) {
     this.value = value;
   }
 

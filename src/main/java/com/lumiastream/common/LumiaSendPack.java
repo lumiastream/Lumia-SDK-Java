@@ -9,8 +9,20 @@ import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 public class LumiaSendPack {
   @JsonProperty("type")
   private LumiaExternalActivityCommandType commandType;
+  @JsonProperty("gamesGlowName")
+  private String gamesGlowName;
+  @JsonProperty("glowId")
+  private String glowId;
   @JsonProperty("params")
   private LumiaPackParam packParam;
+
+  public LumiaSendPack(final LumiaExternalActivityCommandType commandType, final LumiaPackParam packParam,
+      final String gamesGlowName, final String glowId) {
+    this.commandType = commandType;
+    this.gamesGlowName = gamesGlowName;
+    this.glowId = glowId;
+    this.packParam = packParam;
+  }
 
   public LumiaSendPack(final LumiaExternalActivityCommandType commandType, final LumiaPackParam packParam) {
     this.commandType = commandType;

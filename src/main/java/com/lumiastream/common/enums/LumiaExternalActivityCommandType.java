@@ -17,7 +17,11 @@ public enum LumiaExternalActivityCommandType {
   STUDIO_ANIMATION("studio-animation"),
   STUDIO_THEME("studio-theme"),
   CHATBOT_MESSAGE("chatbot-message"),
-  TTS("tts");
+  TTS("tts"),
+  GAMESGLOW_ALERT("gamesglow-alert"),
+  GAMESGLOW_COMMAND("gamesglow-command"),
+  GAMESGLOW_VARIABLE("gamesglow-variable"),
+  GAMESGLOW_VIRTUALLIGHT("gamesglow-virtuallight");
 
   private final String value;
 
