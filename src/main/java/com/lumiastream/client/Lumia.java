@@ -196,4 +196,44 @@ public class Lumia {
     send(pack, handler);
   }
 
+  // Games glow functions
+  public void getGamesGlowSettings(final Handler<Buffer> handler) {
+    final JsonObject getInfoPayload = new JsonObject().put("gamesGlowName", this.lumiaOptions.getName())
+        .put("method", "gamesGlowSettings");
+    logger.info(() -> String.format("Getting Info:- Data: %s", getInfoPayload.encode()));
+     sendWebSocketMessage(getInfoPayload, handler);
+  }
+
+  public void sendGamesGlowAlert(final String glowId, final String value, final Handler<Buffer> handler) {
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_ALERT,
+        packParam, this.lumiaOptions.getName(), glowId);
+    logger.info(() -> String.format("GamesgLow Alert :- Data: %s", Json.encode(pack)));
+     send(pack, handler);
+  }
+
+  public void sendGamesGlowCommand(final String glowId, final String value, final Handler<Buffer> handler) {
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_COMMAND,
+        packParam, this.lumiaOptions.getName(), glowId);
+    logger.info(() -> String.format("GamesgLow Command :- Data: %s", Json.encode(pack)));
+     send(pack, handler);
+  }
+
+  public void sendGamesGlowVariableUpdate(final String glowId, final String value, final Handler<Buffer> handler) {
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_VARIABLE,
+        packParam, this.lumiaOptions.getName(), glowId);
+    logger.info(() -> String.format("GamesgLow Variable :- Data: %s", Json.encode(pack)));
+     send(pack, handler);
+  }
+
+  public void sendGamesGlowVirtualLightsChange(final String glowId, final String value,final Handler<Buffer> handler) {
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_VIRTUALLIGHT,
+        packParam, this.lumiaOptions.getName(), glowId);
+    logger.info(() -> String.format("GamesgLow Virtual Light :- Data: %s", Json.encode(pack)));
+     send(pack, handler);
+  }
+
 }
