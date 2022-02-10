@@ -14,7 +14,6 @@ repositories {
 }
 
 val vertxVersion = "4.2.4"
-val mutinyVersion = "2.6.0"
 val jacksonVersion = "2.13.0"
 val junitJupiterVersion = "5.7.0"
 
@@ -24,7 +23,6 @@ val doOnChange = "${projectDir}/gradlew classes"
 dependencies {
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-core")
-  implementation("io.smallrye.reactive:smallrye-mutiny-vertx-core:$mutinyVersion")
   implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
   testImplementation("io.vertx:vertx-junit5")
