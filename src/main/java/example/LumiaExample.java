@@ -24,8 +24,8 @@ public class LumiaExample {
         .getInstance(
             new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
                 .setToken("insert-token"));
-    client.connect(true).future().onSuccess(successEvent -> {
-      System.out.println("WebSocket closed status: " + successEvent);
+    client.connect(true).future().onSuccess(connectedStatus -> {
+      System.out.println("WebSocket closed status: " + connectedStatus);
 
       // Send an alert
       client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER,

@@ -78,18 +78,18 @@ This will pull in all the dependencies and run the example.
 The following snippet shows a valid sdk example
 
 ```java
-  final LumiaWebSocketClient client = Lumia.client();
-      client.connect().await().indefinitely();
-      client.getInfo().subscribe().with(System.out::println);
+  final Lumia client = Lumia.getInstance(new ConnectionOptions().setHost("127.0.0.1")
+        .setPort(39231).setName("lumia-java-sdk").setToken("insert-token"));
 
-      final LumiaPackParam lumiaPackParam = new LumiaPackParam();
-      lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
-      final LumiaSendPack lumiaSendPack = new LumiaSendPack(LumiaCommandType.ALERT,
-          lumiaPackParam);
+  final LumiaPackParam lumiaPackParam = new LumiaPackParam();
+  lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
+  final LumiaSendPack lumiaSendPack = new LumiaSendPack(LumiaCommandType.ALERT,lumiaPackParam);
+      
+  client.connect(true).future().onSuccess(connectedStatus -> {
+     System.out.println("WebSocket closed status: " + connectedStatus);
+     client.send(lumiaSendPack, data -> System.out.println("SEND: \n" + data.toJsonObject()));
+  }).onFailure(failureEvent -> failureEvent.printStackTrace());
 
-      client.send(lumiaSendPack).subscribe().with(System.out::println);
-
-      client.getWebSocket().handler(buffer -> System.out.println(buffer));
 
 ```
 
@@ -240,9 +240,10 @@ These settings will include all of the lights that are connected to Lumia, the c
 **Example:**
 
 ```java
-  final LumiaWebSocketClient client = Lumia.client();
-  client.connect().await().indefinitely();
-  client.getInfo().subscribe().with(System.out::println);
+  client.connect(true).future().onSuccess(connectedStatus -> {
+    System.out.println("WebSocket closed status: " + connectedStatus);
+    client.getInfo(data -> System.out.println("INFO: " + data.toJsonObject()));
+  }).onFailure(failureEvent -> failureEvent.printStackTrace());
 ```
 
 ---
@@ -254,15 +255,12 @@ The simplest way to use Lumia is first setting up a command inside of Lumia Stre
 **Example:**
 
 ```java
-  final CountDownLatch countDownLatch = new CountDownLatch(1);
     final LumiaPackParam lumiaPackParam = new LumiaPackParam();
     lumiaPackParam.setValue(LumiaAlertValue.TWITCH_FOLLOWER.getValue());
-    client.send(new LumiaSendPack(LumiaCommandType.ALERT, lumiaPackParam))
-        .subscribe().with(jsonObject -> {
-      countDownLatch.countDown();
-      System.out.println(jsonObject.encode());
-    });
-    countDownLatch.await();
+    client.connect(true).future().onSuccess(connectedStatus -> {
+      System.out.println("WebSocket closed status: " + connectedStatus);
+      client.send(lumiaSendPack, data -> System.out.println("SEND: \n" + data.toJsonObject()));
+    }).onFailure(failureEvent -> failureEvent.printStackTrace());
 ```
 
 ---
@@ -273,11 +271,13 @@ Sending a color gives you the ability to set your lights to whatever color you c
 
 **Example:**
 
-```javascript
-
-    client.sendColor(new Rgb(1, 2, 3), 4, Duration.ofNanos(1), Duration.ofMillis(1), true, false,
-        List.of(new LumiaLight(LightBrand.COLOLIGHT, LightBrand.COLOLIGHT.getId())))
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+```java
+client.connect(true).future().onSuccess(connectedStatus -> {
+  System.out.println("WebSocket closed status: " + connectedStatus);
+  final MessageOptions messageOptions = new MessageOptions().setDuration(Duration.ofMillis(1000));
+  client.sendColor(new Rgb(255, 0, 0), 60, messageOptions, data -> 
+        System.out.println("COLOR: " + data.toJsonObject()));
+}).onFailure(failureEvent -> failureEvent.printStackTrace());
 ```
 
 ---
@@ -288,11 +288,13 @@ Using the same sendColor method you can also choose which lights receive the col
 
 **Example:**
 
-```javascript
-
-    client.sendColor(new Rgb(1, 2, 3), 4, Duration.ofNanos(1), Duration.ofMillis(1), true, false,
-        List.of(new LumiaLight(LightBrand.COLOLIGHT, LightBrand.COLOLIGHT.getId())))
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+```java
+client.connect(true).future().onSuccess(connectedStatus -> {
+  System.out.println("WebSocket closed status: " + connectedStatus);
+  final MessageOptions messageOptions = new MessageOptions().setDuration(Duration.ofMillis(1000));
+  client.sendColor(new Rgb(255, 0, 0), 60, messageOptions, data -> 
+        System.out.println("COLOR: " + data.toJsonObject()));
+}).onFailure(failureEvent -> failureEvent.printStackTrace());
 ```
 
 ---
@@ -304,8 +306,8 @@ Sending brightness alone will keep all of your lights at their current state whi
 **Example:**
 
 ```java
-    client.sendBrightness(1, Duration.ofDays(1), true)
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+ client.sendBrightness(100, new MessageOptions(), 
+        data -> System.out.println("BRIGHT: " + data.toJsonObject()));
 ```
 
 ---
@@ -316,9 +318,9 @@ Sending TTS messages will give you the ability to use Lumia's TTS by just caling
 
 **Example:**
 
-```javascript
-client.sendTts("we", 10, "dd")
-        .subscribe().with(jsonObject -> System.out.println(jsonObject.encode()));
+```java
+client.sendTts("This SDK is the best", 100, "", 
+        data -> System.out.println("TTS: " + data.toJsonObject()));
 ```
 
 ---
@@ -330,10 +332,8 @@ Sending a Chat bot messages will allow you to send messages to chat through Lumi
 **Example:**
 
 ```java
-client.sendChatBot(Platform.TWITCH, "ME!")
-        .subscribe().with(jsonObject -> {
-      System.out.println(jsonObject.encode());
-    });
+ client.sendChatBot(Platform.TWITCH, "This SDK is the best",
+        data -> System.out.println("CHAT: " + data.toJsonObject()));
 ```
 
 ---
@@ -418,10 +418,8 @@ Send a mock alert
 **Example:**
 
 ```java
-client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER)
-        .subscribe().with(jsonObject -> {
-      System.out.println(jsonObject.encode());
-    });
+client.sendAlert(LumiaAlertValue.TWITCH_FOLLOWER,
+        data -> System.out.println("ALERT: " + data.toJsonObject()));
 ```
 
 ---
