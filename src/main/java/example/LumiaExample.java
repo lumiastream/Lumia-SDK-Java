@@ -16,14 +16,13 @@ import java.util.logging.Logger;
 
 public class LumiaExample {
 
-  private static final Logger logger = Logger.
-      getLogger(LumiaExample.class.getCanonicalName());
+  private static final Logger logger = Logger.getLogger(LumiaExample.class.getCanonicalName());
 
   public static void main(String... args) {
     final Lumia client = Lumia
         .getInstance(
             new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
-                .setToken("insert-token"));
+                .setToken("ls_wnxli3i4cp"));
     client.connect(true).future().onSuccess(connectedStatus -> {
       System.out.println("WebSocket closed status: " + connectedStatus);
 

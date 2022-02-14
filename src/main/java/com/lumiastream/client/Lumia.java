@@ -1,6 +1,5 @@
 package com.lumiastream.client;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lumiastream.common.LumiaPackParam;
@@ -82,14 +81,14 @@ public class Lumia {
     final Integer receivedContext = entries.getInteger("context");
     if (receivedContext == null) {
       logger.warning(() -> String
-          .format("`context` is absent from server message:- Data: %s: WebSocket Closed Status: %s"
-              , entries.encode(), this.getWebSocket().isClosed()));
+          .format("`context` is absent from server message:- Data: %s: WebSocket Closed Status: %s", entries.encode(),
+              this.getWebSocket().isClosed()));
     } else {
       final Handler<Buffer> bufferHandler = handlerCache.get(receivedContext);
       if (bufferHandler == null) {
         logger.warning(() -> String
-            .format("No handler registered for this context:- context: %s: WebSocket Closed Status: %s"
-                , receivedContext, this.getWebSocket().isClosed()));
+            .format("No handler registered for this context:- context: %s: WebSocket Closed Status: %s",
+                receivedContext, this.getWebSocket().isClosed()));
       } else {
         bufferHandler.handle(buffer);
         handlerCache.remove(receivedContext);
@@ -127,8 +126,8 @@ public class Lumia {
     handlerCache.put(context, handler);
     json.put("context", context);
     if (webSocket != null) {
-      logger.info(() -> String.format("Sending WebSocket Message:- Data: %s: WebSocket Closed Status: %s"
-          , json, webSocket.isClosed()));
+      logger.info(() -> String.format("Sending WebSocket Message:- Data: %s: WebSocket Closed Status: %s", json,
+          webSocket.isClosed()));
       webSocket.handler(handlerSupplier.get()).write(json.toBuffer());
     }
   }
@@ -198,10 +197,10 @@ public class Lumia {
 
   // Games glow functions
   public void getGamesGlowSettings(final Handler<Buffer> handler) {
-    final JsonObject getInfoPayload = new JsonObject().put("gamesGlowName", this.lumiaOptions.getName())
+    final JsonObject getInfoPayload = new JsonObject().put("gamesGlowKey", this.lumiaOptions.getName())
         .put("method", "gamesGlowSettings");
     logger.info(() -> String.format("Getting Info:- Data: %s", getInfoPayload.encode()));
-     sendWebSocketMessage(getInfoPayload, handler);
+    sendWebSocketMessage(getInfoPayload, handler);
   }
 
   public void sendGamesGlowAlert(final String glowId, final String value, final Handler<Buffer> handler) {
@@ -209,7 +208,7 @@ public class Lumia {
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_ALERT,
         packParam, this.lumiaOptions.getName(), glowId);
     logger.info(() -> String.format("GamesgLow Alert :- Data: %s", Json.encode(pack)));
-     send(pack, handler);
+    send(pack, handler);
   }
 
   public void sendGamesGlowCommand(final String glowId, final String value, final Handler<Buffer> handler) {
@@ -217,7 +216,7 @@ public class Lumia {
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_COMMAND,
         packParam, this.lumiaOptions.getName(), glowId);
     logger.info(() -> String.format("GamesgLow Command :- Data: %s", Json.encode(pack)));
-     send(pack, handler);
+    send(pack, handler);
   }
 
   public void sendGamesGlowVariableUpdate(final String glowId, final String value, final Handler<Buffer> handler) {
@@ -225,16 +224,15 @@ public class Lumia {
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_VARIABLE,
         packParam, this.lumiaOptions.getName(), glowId);
     logger.info(() -> String.format("GamesgLow Variable :- Data: %s", Json.encode(pack)));
-     send(pack, handler);
+    send(pack, handler);
   }
 
-  public void sendGamesGlowVirtualLightsChange(final String glowId, final String value,final Handler<Buffer> handler) {
+  public void sendGamesGlowVirtualLightsChange(final String glowId, final String value, final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_VIRTUALLIGHT,
         packParam, this.lumiaOptions.getName(), glowId);
     logger.info(() -> String.format("GamesgLow Virtual Light :- Data: %s", Json.encode(pack)));
-     send(pack, handler);
+    send(pack, handler);
   }
-
 
 }
