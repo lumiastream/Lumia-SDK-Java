@@ -8,6 +8,7 @@ import com.lumiastream.common.LumiaPackParam;
 import com.lumiastream.common.LumiaSendPack;
 import com.lumiastream.common.Rgb;
 import com.lumiastream.common.enums.LumiaAlertValue;
+import com.lumiastream.common.enums.LumiaEventType;
 import com.lumiastream.common.enums.LumiaExternalActivityCommandType;
 import com.lumiastream.common.enums.Platform;
 import io.vertx.core.buffer.Buffer;
@@ -74,18 +75,18 @@ public class LumiaExample {
 
   private static void output(Buffer buffer, String type) {
     switch (type) {
-      case "states":
+      case LumiaEventType.STATES.getValue():
         logger.info(
             () -> String.format("States have been updated: %s", buffer.toJsonObject().encode()));
         break;
-      case "alert":
+      case LumiaEventType.ALERT.getValue():
         logger.info(() -> String.format("New alert: %s", buffer.toJsonObject().encode()));
         break;
-      case "command":
+      case LumiaEventType.COMMAND.getValue():
         logger.info(() -> String
             .format("A Chat Command is being triggered: %s", buffer.toJsonObject().encode()));
         break;
-      case "chat":
+      case LumiaEventType.CHAT.getValue():
         logger.info(() -> String.format("New chat message: %s", buffer.toJsonObject().encode()));
         break;
       default:
