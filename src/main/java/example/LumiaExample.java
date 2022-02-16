@@ -23,7 +23,7 @@ public class LumiaExample {
     final Lumia client = Lumia
         .getInstance(
             new ConnectionOptions().setHost("127.0.0.1").setPort(39231).setName("lumia-java-sdk")
-                .setToken("ls_wnxli3i4cp"));
+                .setToken("insert-token-here"));
     client.connect(true).future().onSuccess(connectedStatus -> {
       System.out.println("WebSocket closed status: " + connectedStatus);
 
@@ -75,18 +75,18 @@ public class LumiaExample {
 
   private static void output(Buffer buffer, String type) {
     switch (type) {
-      case LumiaEventType.STATES.getValue():
+      case "states":
         logger.info(
             () -> String.format("States have been updated: %s", buffer.toJsonObject().encode()));
         break;
-      case LumiaEventType.ALERT.getValue():
+      case "alert":
         logger.info(() -> String.format("New alert: %s", buffer.toJsonObject().encode()));
         break;
-      case LumiaEventType.COMMAND.getValue():
+      case "command":
         logger.info(() -> String
             .format("A Chat Command is being triggered: %s", buffer.toJsonObject().encode()));
         break;
-      case LumiaEventType.CHAT.getValue():
+      case "chat":
         logger.info(() -> String.format("New chat message: %s", buffer.toJsonObject().encode()));
         break;
       default:
