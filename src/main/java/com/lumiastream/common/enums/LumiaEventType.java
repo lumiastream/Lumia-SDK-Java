@@ -14,7 +14,7 @@ public enum LumiaEventType {
   ALERT("alert"),
   GAMESGLOW_ALERT("gamesglow_alert"),
   GAMESGLOW_COMMAND("gamesglow_command"),
-  GAMESGLOW_VIRTUALLIGHT("gamesglow_virutallight");
+  GAMESGLOW_VIRTUALLIGHT("gamesglow_virtuallight");
 
   private final String value;
 
