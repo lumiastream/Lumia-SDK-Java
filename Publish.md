@@ -7,6 +7,7 @@ First update the version in `build.gradle.kts`
 Then publish by running:
 
 ```
-./gradlew closeAndReleaseRepository
+./gradlew publishToMaven
 ./gradlew publish --no-daemon --no-parallel
+./gradlew closeAndReleaseRepository
 ```
