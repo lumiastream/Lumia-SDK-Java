@@ -207,7 +207,7 @@ public class Lumia {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_ALERT,
         packParam, this.lumiaOptions.getName(), gamesGlowKey);
-    logger.info(() -> String.format("GamesgLow Alert :- Data: %s", Json.encode(pack)));
+    logger.info(() -> String.format("GamesGlow Alert :- Data: %s", Json.encode(pack)));
     send(pack, handler);
   }
 
@@ -215,7 +215,7 @@ public class Lumia {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_COMMAND,
         packParam, this.lumiaOptions.getName(), gamesGlowKey);
-    logger.info(() -> String.format("GamesgLow Command :- Data: %s", Json.encode(pack)));
+    logger.info(() -> String.format("GamesGlow Command :- Data: %s", Json.encode(pack)));
     send(pack, handler);
   }
 
@@ -224,7 +224,7 @@ public class Lumia {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_VARIABLE,
         packParam, this.lumiaOptions.getName(), gamesGlowKey);
-    logger.info(() -> String.format("GamesgLow Variable :- Data: %s", Json.encode(pack)));
+    logger.info(() -> String.format("GamesGlow Variable :- Data: %s", Json.encode(pack)));
     send(pack, handler);
   }
 
@@ -233,7 +233,7 @@ public class Lumia {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(value);
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.GAMESGLOW_VIRTUALLIGHT,
         packParam, this.lumiaOptions.getName(), gamesGlowKey);
-    logger.info(() -> String.format("GamesgLow Virtual Light :- Data: %s", Json.encode(pack)));
+    logger.info(() -> String.format("GamesGlow Virtual Light :- Data: %s", Json.encode(pack)));
     send(pack, handler);
   }
 
