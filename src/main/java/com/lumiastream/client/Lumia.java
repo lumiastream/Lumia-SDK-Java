@@ -56,11 +56,17 @@ public class Lumia {
 
   public Promise<Boolean> connect(final boolean shouldAutoReconnect) {
     final Promise<Boolean> result = Promise.promise();
-    final StringBuilder uri = new StringBuilder().append("/api?token=")
-        .append(lumiaOptions.getToken()).append("&name=").append(lumiaOptions.getName());
+    final StringBuilder uri = new StringBuilder();
+    Integer port = lumiaOptions.getPort();
+    if (lumiaOptions.getDeck()) {
+      port = 39222;
+      uri.append("token=").append(lumiaOptions.getToken()).append("&name=").append(lumiaOptions.getName());
+    } else {
+      uri.append("/").append(lumiaOptions.endpoint).append("token=").append(lumiaOptions.getToken()).append("&name=").append(lumiaOptions.getName());
+    }
     logger.info(() -> String.format("Connecting:- URI: %s", uri));
     vertx.createHttpClient()
-        .webSocket(lumiaOptions.getPort(), lumiaOptions.getHost(), uri.toString())
+        .webSocket(port, lumiaOptions.getHost(), uri.toString())
         .onSuccess(socket -> {
           logger.info(() -> "WebSocket connected.");
           this.setWebSocket(socket);
@@ -147,6 +153,13 @@ public class Lumia {
     send(pack, handler);
   }
 
+  public void sendAlert(final String alert, final Handler<Buffer> handler) {
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(alert);
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.ALERT, packParam);
+    logger.info(() -> String.format("Alerting :- Data: %s", Json.encode(pack)));
+    send(pack, handler);
+  }
+
   public void sendChatBot(final Platform platform, final String text,
       final Handler<Buffer> handler) {
     final LumiaPackParam packParam = new LumiaPackParam().setValue(text).setPlatform(platform);
@@ -156,9 +169,19 @@ public class Lumia {
     send(pack, handler);
   }
 
-  public void sendColor(final Rgb rgb, final Integer brightness,
+  public void sendColor(final Rgb color, final Integer brightness,
       final MessageOptions messageOptions, final Handler<Buffer> handler) {
-    final LumiaPackParam packParam = new LumiaPackParam().setValue(Json.encode(rgb))
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(Json.encode(color))
+        .setBrightness(brightness).setHold(messageOptions.getHoldDefault());
+    final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
+        packParam);
+    logger.info(() -> String.format("Coloring :- Data: %s", Json.encode(pack)));
+    send(pack, handler);
+  }
+
+  public void sendHexColor(final String color, final Integer brightness,
+      final MessageOptions messageOptions, final Handler<Buffer> handler) {
+    final LumiaPackParam packParam = new LumiaPackParam().setValue(color)
         .setBrightness(brightness).setHold(messageOptions.getHoldDefault());
     final LumiaSendPack pack = new LumiaSendPack(LumiaExternalActivityCommandType.RGB_COLOR,
         packParam);
